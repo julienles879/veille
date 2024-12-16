@@ -1,10 +1,32 @@
 from rest_framework import generics, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
+from rest_framework.generics import RetrieveAPIView
 from rest_framework.views import APIView
-from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
-from .models import RSSFeed, Category
-from .serializers import RSSFeedSerializer, CategorySerializer
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
+from .models import *
+from .serializers import *
+from articles.serializers import *
+from articles.models import *
+
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+class RSSFeedDetailView(APIView):
+    def get(self, request, pk, *args, **kwargs):
+        try:
+            feed = RSSFeed.objects.get(pk=pk)
+            logger.debug(f"Flux trouvé : {feed.title}")
+            articles = feed.entries.all()  # Articles associés
+            logger.debug(f"Articles associés : {[article.title for article in articles]}")
+            serializer = RSSFeedDetailSerializer(feed)
+            return Response(serializer.data, status=200)
+        except RSSFeed.DoesNotExist:
+            logger.error(f"Flux avec ID {pk} introuvable")
+            return Response({"error": "Flux RSS introuvable."}, status=404)
+
 
 
 class RSSFeedListCreateView(generics.ListCreateAPIView):
@@ -64,9 +86,9 @@ class CategoryListCreateView(generics.ListCreateAPIView):
     serializer_class = CategorySerializer
 
 
-class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
+class CategoryDetailView(RetrieveAPIView):
     """
-    Vue pour récupérer, mettre à jour ou supprimer une catégorie.
+    Vue pour récupérer les détails d’une catégorie et les articles associés.
     """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
