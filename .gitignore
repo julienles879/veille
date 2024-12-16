@@ -1,0 +1,66 @@
+
+# **Django-related files**
+*.pyc
+__pycache__/
+db.sqlite3
+*.sqlite3
+
+# Django secret key and environment settings
+.env
+
+# Static and media files
+/staticfiles/
+/media/
+
+# **Python-related files**
+*.log
+*.pot
+*.py[cod]
+*.swp
+*.venv
+pip-log.txt
+pip-delete-this-directory.txt
+*.egg-info/
+dist/
+eggs/
+parts/
+bin/
+var/
+*.coverage
+.cache/
+coverage.xml
+*.cover
+
+# **Pipenv-related files**
+Pipfile.lock
+
+# **React-related files**
+node_modules/
+build/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
+
+# **Editor and OS-related files**
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+
+# **Logs and temporary files**
+*.log
+*.out
+*.pid
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# **Git-related files**
+*.orig
+.git/
