@@ -1,5 +1,19 @@
 from rest_framework import serializers
-from .models import RSSFeedEntry
+from .models import *
+
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    """
+    Sérialiseur pour gérer les favoris.
+    """
+    article_title = serializers.CharField(source='article.title', read_only=True)
+    article_link = serializers.URLField(source='article.link', read_only=True)
+
+    class Meta:
+        model = Favorite
+        fields = ['id', 'article', 'article_title', 'article_link', 'created_at']
+        read_only_fields = ['id', 'created_at', 'article_title', 'article_link']
+
 
 class RSSFeedEntrySerializer(serializers.ModelSerializer):
     """

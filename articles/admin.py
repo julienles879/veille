@@ -1,5 +1,15 @@
+from django.contrib.auth.models import User
+from django.contrib.auth.admin import UserAdmin
 from django.contrib import admin
-from .models import RSSFeedEntry
+from .models import *
+
+
+@admin.register(Favorite)
+class FavoriteAdmin(admin.ModelAdmin):
+    list_display = ('article', 'created_at')  # Colonnes affichées
+    search_fields = ('article__title', 'user__username')  # Barre de recherche sur titre d'article et utilisateur
+    raw_id_fields = ['article']
+
 
 @admin.register(RSSFeedEntry)
 class RSSFeedEntryAdmin(admin.ModelAdmin):

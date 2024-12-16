@@ -1,13 +1,54 @@
-from rest_framework import generics, filters
-from .models import RSSFeedEntry
-from .serializers import RSSFeedEntrySerializer
-
-from rest_framework.generics import ListAPIView
-from rest_framework.filters import OrderingFilter
+from rest_framework import generics, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
+from rest_framework.filters import OrderingFilter, SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import RSSFeedEntry
-from .serializers import RSSFeedEntrySerializer
-from rest_framework.filters import SearchFilter
+from .models import *
+from .serializers import *
+
+
+
+class FavoriteListView(APIView):
+    """
+    Vue pour lister les favoris.
+    """
+    def get(self, request):
+        favorites = Favorite.objects.all()
+        articles = [favorite.article for favorite in favorites]
+        serializer = RSSFeedEntrySerializer(articles, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class AddFavoriteView(APIView):
+    """
+    Vue pour ajouter un favori.
+    """
+    def post(self, request, *args, **kwargs):
+        article_id = request.data.get('article_id')
+        if not article_id:
+            return Response({"error": "Article ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            article = RSSFeedEntry.objects.get(id=article_id)
+            favorite, created = Favorite.objects.get_or_create(article=article)
+            if created:
+                return Response({"message": "Article added to favorites."}, status=status.HTTP_201_CREATED)
+            return Response({"message": "Article is already a favorite."}, status=status.HTTP_200_OK)
+        except RSSFeedEntry.DoesNotExist:
+            return Response({"error": "Article not found."}, status=status.HTTP_404_NOT_FOUND)
+
+class RemoveFavoriteView(APIView):
+    """
+    Vue pour supprimer un favori.
+    """
+    def delete(self, request, *args, **kwargs):
+        article_id = kwargs.get('article_id')
+        try:
+            favorite = Favorite.objects.get(article_id=article_id)
+            favorite.delete()
+            return Response({"message": "Article removed from favorites."}, status=status.HTTP_200_OK)
+        except Favorite.DoesNotExist:
+            return Response({"error": "Favorite not found."}, status=status.HTTP_404_NOT_FOUND)
+
 
 class RSSFeedEntryListView(generics.ListAPIView):
     """
