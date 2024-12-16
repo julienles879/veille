@@ -7,9 +7,11 @@ class Category(models.Model):
     name = models.CharField(max_length=100, unique=True, help_text="Nom de la catégorie.")
     description = models.TextField(null=True, blank=True, help_text="Description de la catégorie.")
     created_at = models.DateTimeField(auto_now_add=True, help_text="Date de création de la catégorie.")
+    image = models.ImageField(upload_to='categories/', null=True, blank=True, help_text="Image associée à la catégorie.")
 
     def __str__(self):
         return self.name
+
 
 
 class RSSFeed(models.Model):
