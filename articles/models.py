@@ -1,5 +1,7 @@
 from django.db import models
+from django.conf import settings  
 from feeds.models import RSSFeed
+
 
 class RSSFeedEntry(models.Model):
     """
@@ -18,3 +20,28 @@ class RSSFeedEntry(models.Model):
 
     def __str__(self):
         return self.title
+    
+class Favorite(models.Model):
+    """
+    Modèle pour gérer les favoris des articles.
+    """
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name="favorites",
+        help_text="Utilisateur ayant marqué l'article comme favori."
+    )
+    article = models.ForeignKey(
+        RSSFeedEntry, 
+        on_delete=models.CASCADE,
+        related_name="favorited_by",
+        help_text="Article marqué comme favori."
+    )
+    created_at = models.DateTimeField(auto_now_add=True, help_text="Date à laquelle l'article a été ajouté aux favoris.")
+
+    class Meta:
+        unique_together = ['user', 'article']  # Un utilisateur ne peut pas ajouter plusieurs fois le même article
+        ordering = ['-created_at']  # Tri par date d'ajout décroissante
+
+    def __str__(self):
+        return f"Favori: {self.user} -> {self.article.title}"
