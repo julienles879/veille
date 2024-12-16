@@ -84,6 +84,14 @@ class CategoryListCreateView(generics.ListCreateAPIView):
     """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    
+
+class CategotyListView(generics.ListAPIView):
+    """
+    Vue pour lister toutes les catégories.
+    """
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer   
 
 
 class CategoryDetailView(RetrieveAPIView):
