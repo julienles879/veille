@@ -7,19 +7,27 @@ from rest_framework.filters import OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import RSSFeedEntry
 from .serializers import RSSFeedEntrySerializer
+from rest_framework.filters import SearchFilter
 
 class RSSFeedEntryListView(generics.ListAPIView):
     """
-    Vue pour lister, filtrer et trier les articles.
+    Vue pour lister, filtrer, trier et rechercher les articles.
     """
     queryset = RSSFeedEntry.objects.all()
     serializer_class = RSSFeedEntrySerializer
 
-    # Ajout des filtres et du tri
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
-    filterset_fields = ['feed__category__name', 'feed__title']  # Filtrage par catégorie et flux
-    ordering_fields = ['published_at', 'title']  # Tri par date de publication ou titre
-    ordering = ['-published_at']  # Tri par défaut : plus récent en premier
+    # Backends pour le filtrage, le tri et la recherche
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    
+    # Champs pour le filtrage
+    filterset_fields = ['feed__category__name', 'feed__title']
+    
+    # Champs pour le tri
+    ordering_fields = ['published_at', 'title']
+    ordering = ['-published_at']  # Par défaut, tri par date décroissante
+    
+    # Champs pour la recherche
+    search_fields = ['title', 'content', 'feed__category__name']
 
 
 
