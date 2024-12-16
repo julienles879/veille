@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import RSSFeed
+from .models import *
 
 @admin.register(RSSFeed)
 class RSSFeedAdmin(admin.ModelAdmin):
@@ -20,3 +20,10 @@ class RSSFeedAdmin(admin.ModelAdmin):
     
     # Champs non modifiables
     readonly_fields = ('created_at',)
+
+
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('name', 'created_at')
+    search_fields = ('name',)

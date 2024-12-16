@@ -2,8 +2,8 @@ from rest_framework import generics, filters
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
-from .models import RSSFeed
-from .serializers import RSSFeedSerializer
+from .models import *
+from .serializers import *
 
 class RSSFeedListCreateView(generics.ListCreateAPIView):
     """
@@ -41,3 +41,19 @@ class RSSFeedFilterView(APIView):
             serializer = RSSFeedSerializer(queryset, many=True)
             return Response(serializer.data, status=HTTP_200_OK)
         return Response({"error": "Category not specified"}, status=HTTP_400_BAD_REQUEST)
+
+
+class CategoryListCreateView(generics.ListCreateAPIView):
+    """
+    Vue pour lister et créer des catégories.
+    """
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+
+class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Vue pour récupérer, mettre à jour ou supprimer une catégorie.
+    """
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
