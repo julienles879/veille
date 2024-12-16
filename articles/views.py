@@ -2,17 +2,25 @@ from rest_framework import generics, filters
 from .models import RSSFeedEntry
 from .serializers import RSSFeedEntrySerializer
 
+from rest_framework.generics import ListAPIView
+from rest_framework.filters import OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from .models import RSSFeedEntry
+from .serializers import RSSFeedEntrySerializer
+
 class RSSFeedEntryListView(generics.ListAPIView):
     """
-    Vue pour lister tous les articles avec pagination, recherche et filtres.
+    Vue pour lister, filtrer et trier les articles.
     """
-    queryset = RSSFeedEntry.objects.all().order_by('-published_at')
+    queryset = RSSFeedEntry.objects.all()
     serializer_class = RSSFeedEntrySerializer
 
-    # Filtres pour la recherche et les filtres personnalisés
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['title', 'content']  # Recherche textuelle
-    ordering_fields = ['published_at', 'title']  # Tri possible
+    # Ajout des filtres et du tri
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = ['feed__category__name', 'feed__title']  # Filtrage par catégorie et flux
+    ordering_fields = ['published_at', 'title']  # Tri par date de publication ou titre
+    ordering = ['-published_at']  # Tri par défaut : plus récent en premier
+
 
 
 class RSSFeedEntryDetailView(generics.RetrieveAPIView):
