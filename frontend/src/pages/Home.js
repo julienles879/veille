@@ -4,15 +4,17 @@ import Filters from "../components/Filters";
 
 const Home = () => {
   const [articles, setArticles] = useState([]); // Articles affichés
-  const [search, setSearch] = useState(""); // Recherche
-  const [limit, setLimit] = useState(30); // Limite d'articles
+  const [filters, setFilters] = useState({
+    search: "",
+    limit: 30, // Par défaut, 30 articles
+  });
 
   // Fonction pour récupérer les articles récents
   const fetchArticles = useCallback(() => {
-    let query = `/feeds/articles/recent/?limit=${limit}`;
+    let query = `/feeds/articles/recent/?limit=${filters.limit}`;
 
-    if (search.trim() !== "") {
-      query = `/feeds/articles/search/?search=${search}&limit=${limit}`;
+    if (filters.search.trim() !== "") {
+      query = `/feeds/articles/search/?search=${filters.search}&limit=${filters.limit}`;
     }
 
     api
@@ -23,22 +25,20 @@ const Home = () => {
       .catch((error) =>
         console.error("Erreur lors de la récupération des articles :", error)
       );
-  }, [search, limit]); // Utilisation de search et limit comme dépendances
+  }, [filters.search, filters.limit]);
+
+  // Stabiliser handleFilterChange avec useCallback
+  const handleFilterChange = useCallback((newFilters) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      ...newFilters,
+    }));
+  }, []);
 
   // Appel initial et lorsqu'un filtre change
   useEffect(() => {
     fetchArticles();
   }, [fetchArticles]);
-
-  // Mise à jour des filtres
-  const handleFilterChange = (newFilters) => {
-    if (newFilters.search !== undefined) {
-      setSearch(newFilters.search);
-    }
-    if (newFilters.limit !== undefined) {
-      setLimit(newFilters.limit);
-    }
-  };
 
   return (
     <div style={{ padding: "20px" }}>
@@ -47,15 +47,18 @@ const Home = () => {
       {/* Composant de filtres */}
       <Filters
         onFilterChange={handleFilterChange}
-        filters={{ search, limit }}
+        filters={filters}
+        showSort={false} // On masque le tri ici
       />
 
       {/* Sélecteur pour la limite */}
       <div style={{ marginBottom: "20px" }}>
         <label>Afficher par :</label>
         <select
-          value={limit}
-          onChange={(e) => setLimit(parseInt(e.target.value, 10))}
+          value={filters.limit}
+          onChange={(e) =>
+            handleFilterChange({ limit: parseInt(e.target.value, 10) })
+          }
           style={{ marginLeft: "10px", padding: "5px" }}
         >
           <option value="30">30 articles</option>

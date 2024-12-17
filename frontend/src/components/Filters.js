@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 
-const Filters = ({ onFilterChange, filters }) => {
+const Filters = ({ onFilterChange, filters, showSort = true }) => {
   const [search, setSearch] = useState(filters.search || "");
-  const [sort, setSort] = useState(filters.sort || ""); // Tri
-  const [categories, setCategories] = useState([]);
+  const [sort, setSort] = useState(filters.sort || ""); // Tri par défaut
+  const [categories, setCategories] = useState([]); // Catégories disponibles
   const [selectedCategory, setSelectedCategory] = useState(filters.category || "");
 
   // Charger les catégories depuis l'API
@@ -14,10 +14,10 @@ const Filters = ({ onFilterChange, filters }) => {
       .catch((err) => console.error("Erreur lors du chargement des catégories :", err));
   }, []);
 
-  // Appeler la fonction onFilterChange lorsque les filtres changent
+  // Appeler onFilterChange dès que les filtres changent
   useEffect(() => {
     onFilterChange({ search, sort, category: selectedCategory });
-  }, [search, sort, selectedCategory, onFilterChange]);
+  }, [search, sort, selectedCategory, onFilterChange]); // Ajout de onFilterChange
   
 
   return (
@@ -31,16 +31,17 @@ const Filters = ({ onFilterChange, filters }) => {
         style={styles.input}
       />
 
-      {/* Tri par titre et date */}
-      <select value={sort} onChange={(e) => setSort(e.target.value)} style={styles.select}>
-        <option value="">Trier par</option>
-        <option value="title">Titre (A-Z)</option>
-        <option value="-title">Titre (Z-A)</option>
-        <option value="published_at">Date (plus ancien)</option>
-        <option value="-published_at">Date (plus récent)</option>
-      </select>
+      {/* Sélecteur de tri - affiché uniquement si showSort est true */}
+      {showSort && (
+        <select value={sort} onChange={(e) => setSort(e.target.value)} style={styles.select}>
+          <option value="">Trier par</option>
+          <option value="title">Titre (A-Z)</option>
+          <option value="-created_at">Date (récent)</option>
+          <option value="created_at">Date (ancien)</option>
+        </select>
+      )}
 
-      {/* Filtrer par catégorie */}
+      {/* Filtre par catégorie */}
       <select
         value={selectedCategory}
         onChange={(e) => setSelectedCategory(e.target.value)}
