@@ -38,7 +38,7 @@ const Home = () => {
       );
   }, [filters.search, filters.limit, filters.category]);
 
-  // Mise à jour des filtres
+  // Fonction pour mettre à jour les filtres
   const handleFilterChange = useCallback((newFilters) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
