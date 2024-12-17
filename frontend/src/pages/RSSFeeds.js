@@ -1,45 +1,50 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import api from "../api";
 import Filters from "../components/Filters";
 
 const RSSFeeds = () => {
   const [feeds, setFeeds] = useState([]); // Liste des flux RSS
-  const [filters, setFilters] = useState({
-    search: "",
-    sort: "",
-    category: "",
-  });
+  const [search, setSearch] = useState(""); // Recherche
+  const [sort, setSort] = useState(""); // Tri
+  const [category, setCategory] = useState(""); // Filtre par catégorie
 
   // Fonction pour récupérer les flux RSS avec filtres
-  const fetchFeeds = () => {
+  const fetchFeeds = useCallback(() => {
     let query = `/feeds/?`;
 
-    if (filters.search) query += `search=${filters.search}&`;
-    if (filters.sort) query += `ordering=${filters.sort}&`;
-    if (filters.category) query += `category__name=${filters.category}&`; // Paramètre pour filtrer par catégorie
+    if (search) query += `search=${search}&`;
+    if (sort) query += `ordering=${sort}&`;
+    if (category) query += `category__name=${category}&`;
 
     api
       .get(query)
       .then((response) => setFeeds(response.data))
-      .catch((error) => console.error("Erreur lors de la récupération des flux :", error));
-  };
-
-  // Mettre à jour les filtres
-  const handleFilterChange = (newFilters) => {
-    setFilters(newFilters);
-  };
+      .catch((error) =>
+        console.error("Erreur lors de la récupération des flux :", error)
+      );
+  }, [search, sort, category]); // Dépendances stabilisées
 
   // Recharger les données dès que les filtres changent
   useEffect(() => {
     fetchFeeds();
-  }, [filters]);
+  }, [fetchFeeds]);
+
+  // Gestion des filtres
+  const handleFilterChange = (newFilters) => {
+    if (newFilters.search !== undefined) setSearch(newFilters.search);
+    if (newFilters.sort !== undefined) setSort(newFilters.sort);
+    if (newFilters.category !== undefined) setCategory(newFilters.category);
+  };
 
   return (
     <div>
       <h1>Flux RSS</h1>
 
       {/* Composant de filtres */}
-      <Filters onFilterChange={handleFilterChange} filters={filters} />
+      <Filters
+        onFilterChange={handleFilterChange}
+        filters={{ search, sort, category }}
+      />
 
       {/* Liste des flux RSS */}
       <ul>

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 
 const Filters = ({ onFilterChange, filters }) => {
   const [search, setSearch] = useState(filters.search || "");
-  const [sort, setSort] = useState(filters.sort || ""); // Tri par défaut
-  const [categories, setCategories] = useState([]); // Catégories disponibles
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [sort, setSort] = useState(filters.sort || ""); // Tri
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(filters.category || "");
 
   // Charger les catégories depuis l'API
   useEffect(() => {
@@ -14,10 +14,11 @@ const Filters = ({ onFilterChange, filters }) => {
       .catch((err) => console.error("Erreur lors du chargement des catégories :", err));
   }, []);
 
-  // Appeler onFilterChange dès que les filtres changent
+  // Appeler la fonction onFilterChange lorsque les filtres changent
   useEffect(() => {
     onFilterChange({ search, sort, category: selectedCategory });
-  }, [search, sort, selectedCategory]);
+  }, [search, sort, selectedCategory, onFilterChange]);
+  
 
   return (
     <div style={styles.filtersContainer}>
@@ -30,15 +31,16 @@ const Filters = ({ onFilterChange, filters }) => {
         style={styles.input}
       />
 
-      {/* Sélecteur de tri */}
+      {/* Tri par titre et date */}
       <select value={sort} onChange={(e) => setSort(e.target.value)} style={styles.select}>
         <option value="">Trier par</option>
         <option value="title">Titre (A-Z)</option>
-        <option value="-created_at">Date (récent)</option>
-        <option value="created_at">Date (ancien)</option>
+        <option value="-title">Titre (Z-A)</option>
+        <option value="published_at">Date (plus ancien)</option>
+        <option value="-published_at">Date (plus récent)</option>
       </select>
 
-      {/* Filtre par catégorie */}
+      {/* Filtrer par catégorie */}
       <select
         value={selectedCategory}
         onChange={(e) => setSelectedCategory(e.target.value)}

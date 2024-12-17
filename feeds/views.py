@@ -15,6 +15,20 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+class ArticleSearchView(generics.ListAPIView):
+    """
+    Vue pour rechercher des articles par titre, contenu et trier par catégorie ou date.
+    """
+    serializer_class = RSSFeedEntrySerializer
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
+    search_fields = ['title', 'content', 'feed__title']  # Recherche par mots-clés
+    ordering_fields = ['title', 'published_at']  # Tri par titre (A-Z) et date
+    ordering = ['-published_at']  # Tri par défaut : articles récents
+    filterset_fields = ['feed__category__name']  # Filtre par catégorie
+
+    def get_queryset(self):
+        return RSSFeedEntry.objects.all()
+
 class FavoritesSearchView(generics.ListAPIView):
     """
     Vue pour rechercher et trier les articles favoris.
