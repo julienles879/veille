@@ -21,7 +21,8 @@ class RSSFeedEntrySerializer(serializers.ModelSerializer):
     Inclut les informations sur l'image de la catégorie associée.
     """
     feed_title = serializers.CharField(source='feed.title', read_only=True)  # Titre du flux RSS
-    category_image = serializers.SerializerMethodField()  # Image de la catégorie
+    category = serializers.CharField(source='feed.category.name', read_only=True)  # Nom de la catégorie
+    published_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)  # Format date/heure
 
     class Meta:
         model = RSSFeedEntry
@@ -29,13 +30,14 @@ class RSSFeedEntrySerializer(serializers.ModelSerializer):
             'id',
             'feed',  # ID du flux RSS associé
             'feed_title',  # Titre du flux associé
+            'category',  # Catégorie associée
             'title',
             'link',
             'content',
-            'published_at',
-            'category_image',  # Image de la catégorie (champ ajouté)
+            'published_at',  # Date et heure de parution
         ]
-        read_only_fields = ['id', 'feed', 'feed_title', 'published_at']
+        read_only_fields = ['id', 'feed', 'feed_title', 'category', 'published_at']
+
 
     def get_category_image(self, obj):
         """

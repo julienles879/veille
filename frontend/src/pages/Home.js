@@ -7,27 +7,38 @@ const Home = () => {
   const [filters, setFilters] = useState({
     search: "",
     limit: 30, // Par défaut, 30 articles
+    category: "", // Catégorie sélectionnée
   });
 
-  // Fonction pour récupérer les articles récents
+  // Fonction pour récupérer les articles récents avec gestion des filtres
   const fetchArticles = useCallback(() => {
     let query = `/feeds/articles/recent/?limit=${filters.limit}`;
 
-    if (filters.search.trim() !== "") {
-      query = `/feeds/articles/search/?search=${filters.search}&limit=${filters.limit}`;
+    // Filtrer par catégorie
+    if (filters.category && filters.category !== "Toutes catégories") {
+      query += `&category=${filters.category}`;
     }
 
+    // Si une recherche est effectuée
+    if (filters.search.trim() !== "") {
+      query = `/feeds/articles/search/?search=${filters.search}&limit=${filters.limit}`;
+      if (filters.category && filters.category !== "Toutes catégories") {
+        query += `&category=${filters.category}`;
+      }
+    }
+
+    // Appel API pour récupérer les articles
     api
       .get(query)
       .then((response) => {
-        setArticles(response.data); // Mettre à jour les articles
+        setArticles(response.data);
       })
       .catch((error) =>
         console.error("Erreur lors de la récupération des articles :", error)
       );
-  }, [filters.search, filters.limit]);
+  }, [filters.search, filters.limit, filters.category]);
 
-  // Stabiliser handleFilterChange avec useCallback
+  // Mise à jour des filtres
   const handleFilterChange = useCallback((newFilters) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
@@ -74,6 +85,13 @@ const Home = () => {
             <div key={article.id} style={styles.articleCard}>
               <h3>{article.title}</h3>
               <p>{article.content}</p>
+              <p>
+                <strong>Catégorie :</strong>{" "}
+                {article.category || "Non catégorisé"}
+              </p>
+              <p>
+                <strong>Publié le :</strong> {article.published_at}
+              </p>
               <a href={article.link} target="_blank" rel="noopener noreferrer">
                 Lire plus
               </a>

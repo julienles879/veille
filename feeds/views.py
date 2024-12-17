@@ -72,13 +72,18 @@ class ArticleSearchView(generics.ListAPIView):
 
 class RecentArticlesView(generics.ListAPIView):
     """
-    Vue pour récupérer les articles les plus récents (Home Page).
+    Vue pour récupérer les articles récents filtrés par catégorie (optionnel).
     """
     serializer_class = RSSFeedEntrySerializer
 
     def get_queryset(self):
-        limit = self.request.query_params.get('limit', 30)  # Par défaut : 30 articles
-        return RSSFeedEntry.objects.all().order_by('-published_at')[:int(limit)]
+        limit = int(self.request.query_params.get('limit', 30))
+        category = self.request.query_params.get('category', None)
+
+        queryset = RSSFeedEntry.objects.all().order_by('-published_at')
+        if category:
+            queryset = queryset.filter(feed__category__name__icontains=category)  # Filtrer par catégorie
+        return queryset[:limit]
 
 
 class ArticlePagination(PageNumberPagination):
