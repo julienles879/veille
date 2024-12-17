@@ -1,45 +1,95 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import api from "../api";
+import Filters from "../components/Filters";
 
 const Home = () => {
-  const [articles, setArticles] = useState([]);
-  const [limit, setLimit] = useState(30);
+  const [articles, setArticles] = useState([]); // Articles affichés
+  const [filters, setFilters] = useState({
+    search: "",
+    limit: 30, // Par défaut, 30 articles
+  });
 
-  const fetchArticles = (selectedLimit) => {
+  // Fonction pour récupérer les articles récents
+  const fetchArticles = useCallback(() => {
+    let query = `/feeds/articles/recent/?limit=${filters.limit}`;
+
+    if (filters.search.trim() !== "") {
+      query = `/feeds/articles/search/?search=${filters.search}&limit=${filters.limit}`;
+    }
+
     api
-      .get(`/feeds/articles/recent/?limit=${selectedLimit}`)
-      .then((response) => setArticles(response.data))
-      .catch((error) => console.error("Erreur lors de la récupération des articles récents :", error));
+      .get(query)
+      .then((response) => {
+        setArticles(response.data); // Mettre à jour les articles
+      })
+      .catch((error) =>
+        console.error("Erreur lors de la récupération des articles :", error)
+      );
+  }, [filters.search, filters.limit]);
+
+  // Appel initial et lorsqu'un filtre change
+  useEffect(() => {
+    fetchArticles();
+  }, [fetchArticles]);
+
+  // Mise à jour des filtres
+  const handleFilterChange = (newFilters) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      ...newFilters,
+    }));
   };
 
-  useEffect(() => {
-    fetchArticles(limit);
-  }, [limit]);
-
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
       <h1>Articles Récents</h1>
-      <div>
+
+      {/* Composant de filtres */}
+      <Filters onFilterChange={handleFilterChange} filters={filters} />
+
+      {/* Sélecteur pour la limite */}
+      <div style={{ marginBottom: "20px" }}>
         <label>Afficher par :</label>
-        <select value={limit} onChange={(e) => setLimit(parseInt(e.target.value, 10))}>
+        <select
+          value={filters.limit}
+          onChange={(e) =>
+            handleFilterChange({ limit: parseInt(e.target.value, 10) })
+          }
+          style={{ marginLeft: "10px", padding: "5px" }}
+        >
           <option value="30">30 articles</option>
           <option value="40">40 articles</option>
           <option value="50">50 articles</option>
         </select>
       </div>
+
+      {/* Affichage des articles */}
       <div>
-        {articles.map((article) => (
-          <div key={article.id} style={{ marginBottom: "20px" }}>
-            <h3>{article.title}</h3>
-            <p>{article.content}</p>
-            <a href={article.link} target="_blank" rel="noopener noreferrer">
-              Lire plus
-            </a>
-          </div>
-        ))}
+        {articles.length > 0 ? (
+          articles.map((article) => (
+            <div key={article.id} style={styles.articleCard}>
+              <h3>{article.title}</h3>
+              <p>{article.content}</p>
+              <a href={article.link} target="_blank" rel="noopener noreferrer">
+                Lire plus
+              </a>
+            </div>
+          ))
+        ) : (
+          <p>Aucun article trouvé.</p>
+        )}
       </div>
     </div>
   );
+};
+
+const styles = {
+  articleCard: {
+    marginBottom: "20px",
+    padding: "15px",
+    border: "1px solid #ddd",
+    borderRadius: "4px",
+  },
 };
 
 export default Home;
