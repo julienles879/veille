@@ -15,10 +15,63 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+class FavoritesSearchView(generics.ListAPIView):
+    """
+    Vue pour rechercher et trier les articles favoris.
+    """
+    serializer_class = RSSFeedEntrySerializer
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['title', 'content', 'feed__title']
+    ordering_fields = ['published_at', 'title']
+    ordering = ['-published_at']
+
+    def get_queryset(self):
+        return RSSFeedEntry.objects.filter(favorited_by__isnull=False).order_by('-published_at')
+
+
+class CategorySearchView(generics.ListAPIView):
+    """
+    Vue pour rechercher et trier les catégories.
+    """
+    serializer_class = CategorySerializer
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['name', 'description']
+    ordering_fields = ['name', 'created_at']
+    ordering = ['-created_at']
+
+    def get_queryset(self):
+        return Category.objects.all()
+
+
+class ArticleSearchView(generics.ListAPIView):
+    """
+    Vue pour rechercher des articles par titre ou contenu.
+    """
+    serializer_class = RSSFeedEntrySerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['title', 'content', 'feed__title']  # Recherche par titre, contenu, ou nom du flux RSS
+
+    def get_queryset(self):
+        return RSSFeedEntry.objects.all().order_by('-published_at')
+
+
+
+class RecentArticlesView(generics.ListAPIView):
+    """
+    Vue pour récupérer les articles les plus récents (Home Page).
+    """
+    serializer_class = RSSFeedEntrySerializer
+
+    def get_queryset(self):
+        limit = self.request.query_params.get('limit', 30)  # Par défaut : 30 articles
+        return RSSFeedEntry.objects.all().order_by('-published_at')[:int(limit)]
+
+
 class ArticlePagination(PageNumberPagination):
     page_size = 10  # Nombre d'articles par page
     page_size_query_param = 'page_size'
     max_page_size = 50
+
 
 
 class FeedArticlesView(generics.ListAPIView):
@@ -52,18 +105,18 @@ class RSSFeedListCreateView(generics.ListCreateAPIView):
     """
     Vue pour lister tous les flux RSS, les rechercher, les trier et en ajouter un nouveau.
     """
-    queryset = RSSFeed.objects.all().order_by('-created_at')  # Tri par défaut : plus récent en premier
+    queryset = RSSFeed.objects.all().order_by('-created_at')
     serializer_class = RSSFeedSerializer
 
     # Backends pour le filtrage, la recherche et le tri
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
 
-    # Champs pour la recherche
+    # Champs pour la recherche et les filtres
+    filterset_fields = ['category__name']  # Filtre par nom de catégorie
     search_fields = ['title', 'description', 'category__name']  # Recherche par titre, description ou catégorie
-
-    # Champs pour le tri
     ordering_fields = ['title', 'created_at']
     ordering = ['-created_at']  # Tri par défaut : date décroissante
+
 
     def post(self, request, *args, **kwargs):
         """
