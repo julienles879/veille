@@ -1,18 +1,37 @@
 from rest_framework import generics, filters
-from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.views import APIView
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
+from django_filters.rest_framework import DjangoFilterBackend
+
 from .models import *
 from .serializers import *
 from articles.serializers import *
 from articles.models import *
-
-
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+class ArticlePagination(PageNumberPagination):
+    page_size = 10  # Nombre d'articles par page
+    page_size_query_param = 'page_size'
+    max_page_size = 50
+
+
+class FeedArticlesView(generics.ListAPIView):
+    """
+    Vue pour lister les articles associés à un flux RSS avec pagination.
+    """
+    serializer_class = RSSFeedEntrySerializer
+    pagination_class = ArticlePagination
+
+    def get_queryset(self):
+        feed_id = self.kwargs.get('feed_id')
+        return RSSFeedEntry.objects.filter(feed_id=feed_id).order_by('-published_at')
+
 
 class RSSFeedDetailView(APIView):
     def get(self, request, pk, *args, **kwargs):
@@ -83,15 +102,7 @@ class CategoryListCreateView(generics.ListCreateAPIView):
     Vue pour lister et créer des catégories.
     """
     queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-    
-
-class CategotyListView(generics.ListAPIView):
-    """
-    Vue pour lister toutes les catégories.
-    """
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer   
+    serializer_class = CategorySerializer 
 
 
 class CategoryDetailView(RetrieveAPIView):

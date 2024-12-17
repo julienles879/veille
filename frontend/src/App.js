@@ -8,6 +8,7 @@ import Favorites from "./pages/Favorites";
 import FeedDetail from "./pages/FeedDetail";
 import Categories from "./pages/Categories";
 
+
 const App = () => {
   return (
     <Router>
@@ -19,6 +20,7 @@ const App = () => {
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/rss-feeds/:id" element={<FeedDetail />} />
           <Route path="/feeds/categories" element={<Categories />} />
+          <Route path="/feeds/:id" element={<FeedDetail />} />
         </Routes>
       </Layout>
     </Router>

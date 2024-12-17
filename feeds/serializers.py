@@ -39,16 +39,16 @@ class RSSFeedDetailSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'url', 'description', 'category', 'category_name', 'created_at', 'articles']
 
 class CategorySerializer(serializers.ModelSerializer):
-    articles = serializers.SerializerMethodField()
+    feeds = serializers.SerializerMethodField()
 
     class Meta:
         model = Category
-        fields = ['id', 'name', 'description', 'created_at', 'articles']
-        read_only_fields = ['id', 'created_at']
- 
-    def get_articles(self, obj):
+        fields = ['id', 'name', 'description', 'created_at', 'feeds']
+
+    def get_feeds(self, obj):
         """
-        Récupère les articles associés à ce flux RSS.
+        Récupère les flux RSS associés à cette catégorie.
         """
-        articles = RSSFeedEntry.objects.filter(feed=obj).order_by('-published_at')
-        return RSSFeedEntrySerializer(articles, many=True).data
+        feeds = RSSFeed.objects.filter(category=obj)
+        return RSSFeedSerializer(feeds, many=True).data
+

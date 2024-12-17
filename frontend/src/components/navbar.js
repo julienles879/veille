@@ -18,7 +18,7 @@ const Navbar = () => {
           <Link to="/favorites" style={styles.navLink}>Favoris</Link>
         </li>
         <li style={styles.navItem}>
-          <Link to="/categories" style={styles.navLink}>Catégories</Link>
+          <Link to="/feeds/categories" style={styles.navLink}>Catégories</Link>
         </li>
       </ul>
     </nav>
