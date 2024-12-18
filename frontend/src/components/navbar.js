@@ -12,9 +12,6 @@ const Navbar = () => {
           <Link to="/rss-feeds" style={styles.navLink}>Flux RSS</Link>
         </li>
         <li style={styles.navItem}>
-          <Link to="/add-rss-feed" style={styles.navLink}>Ajouter un flux</Link>
-        </li>
-        <li style={styles.navItem}>
           <Link to="/favorites" style={styles.navLink}>Favoris</Link>
         </li>
         <li style={styles.navItem}>

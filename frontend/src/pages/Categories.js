@@ -62,7 +62,7 @@ const Categories = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1>Liste des Catégories</h1>
+      <h1>Catégories et Flux RSS</h1>
 
       {/* Composant de filtres */}
       <Filters
@@ -75,48 +75,78 @@ const Categories = () => {
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       {/* Liste des catégories avec leurs flux RSS */}
-      <div>
-        <h2>Catégories</h2>
-        <ul>
-          {filteredCategories.length > 0 ? (
-            filteredCategories.map((category) => (
-              <li key={category.id} style={{ marginBottom: "20px" }}>
-                <h3>{category.name}</h3>
-                <p>{category.description}</p>
+      <div style={styles.categoryList}>
+        {filteredCategories.length > 0 ? (
+          filteredCategories.map((category) => (
+            <div key={category.id} style={styles.categoryCard}>
+              <h3>{category.name}</h3>
+              <p>{category.description || "Pas de description disponible."}</p>
 
-                {/* Liste des flux RSS de la catégorie */}
-                {category.feeds && category.feeds.length > 0 ? (
-                  <div>
-                    <h4>Flux RSS :</h4>
-                    <ul>
-                      {category.feeds.map((feed) => (
-                        <li key={feed.id} style={{ marginBottom: "10px" }}>
-                          <strong>{feed.title}</strong>
-                          <p>{feed.description}</p>
-                          <Link
-                            to={`/feeds/${feed.id}`}
-                            style={{ textDecoration: "none", color: "blue" }}
-                          >
-                            Voir le flux
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : (
-                  <p style={{ color: "gray" }}>
-                    Aucun flux RSS dans cette catégorie.
-                  </p>
-                )}
-              </li>
-            ))
-          ) : (
-            <p>Aucune catégorie trouvée.</p>
-          )}
-        </ul>
+              {/* Liste des flux RSS de la catégorie */}
+              {category.feeds && category.feeds.length > 0 ? (
+                <div>
+                  <h4>Flux RSS associés :</h4>
+                  <ul style={styles.feedList}>
+                    {category.feeds.map((feed) => (
+                      <li key={feed.id} style={styles.feedItem}>
+                        <strong>{feed.title}</strong>
+                        <p>{feed.description || "Pas de description."}</p>
+                        <Link
+                          to={`/feeds/${feed.id}`}
+                          style={styles.viewFeedLink}
+                        >
+                          Voir le flux
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : (
+                <p style={{ color: "gray" }}>
+                  Aucun flux RSS associé à cette catégorie.
+                </p>
+              )}
+            </div>
+          ))
+        ) : (
+          <p style={{ textAlign: "center", color: "gray" }}>
+            Aucune catégorie trouvée.
+          </p>
+        )}
       </div>
     </div>
   );
+};
+
+const styles = {
+  categoryList: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+    gap: "20px",
+  },
+  categoryCard: {
+    padding: "15px",
+    border: "1px solid #ddd",
+    borderRadius: "8px",
+    backgroundColor: "#f9f9f9",
+    boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+  },
+  feedList: {
+    listStyleType: "none",
+    padding: 0,
+  },
+  feedItem: {
+    marginBottom: "10px",
+    padding: "10px",
+    border: "1px solid #eee",
+    borderRadius: "4px",
+    backgroundColor: "#fff",
+  },
+  viewFeedLink: {
+    textDecoration: "none",
+    color: "#007BFF",
+    fontWeight: "bold",
+  },
 };
 
 export default Categories;

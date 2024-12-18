@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import api from "../api";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../api";
 
 const RSSFeeds = () => {
   const [feeds, setFeeds] = useState([]);
@@ -18,21 +18,31 @@ const RSSFeeds = () => {
     description: "",
     category: "",
   }); // Données pour modification
+  const [search, setSearch] = useState(""); // Recherche dans les flux
   const navigate = useNavigate();
 
   // Récupérer les flux RSS
-  useEffect(() => {
+  const fetchFeeds = useCallback(() => {
+    let query = `/feeds/`;
+    if (search.trim() !== "") {
+      query = `/feeds/?search=${search}`;
+    }
+
     api
-      .get("/feeds/")
+      .get(query)
       .then((response) => setFeeds(response.data))
       .catch((error) => console.error("Erreur lors du chargement des flux :", error));
+  }, [search]);
+
+  useEffect(() => {
+    fetchFeeds();
 
     // Charger les catégories
     api
       .get("/feeds/categories/")
       .then((response) => setCategories(response.data))
       .catch((error) => console.error("Erreur lors du chargement des catégories :", error));
-  }, []);
+  }, [fetchFeeds]);
 
   // Ajouter un nouveau flux
   const addFeed = () => {
@@ -93,6 +103,20 @@ const RSSFeeds = () => {
     <div style={{ padding: "20px" }}>
       <h1>Gestion des Flux RSS</h1>
 
+      {/* Barre de recherche */}
+      <div style={styles.searchBar}>
+        <input
+          type="text"
+          placeholder="Rechercher un flux..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={styles.input}
+        />
+        <button onClick={fetchFeeds} style={styles.searchButton}>
+          🔍
+        </button>
+      </div>
+
       {/* Formulaire pour ajouter un nouveau flux */}
       <div style={styles.addForm}>
         <input
@@ -133,6 +157,7 @@ const RSSFeeds = () => {
         </button>
       </div>
 
+      {/* Liste des flux RSS */}
       <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
         {feeds.map((feed) => (
           <div key={feed.id} style={styles.feedCard}>
@@ -219,17 +244,30 @@ const RSSFeeds = () => {
 };
 
 const styles = {
-  addForm: {
+  searchBar: {
     display: "flex",
     gap: "10px",
     marginBottom: "20px",
-    alignItems: "center",
   },
   input: {
     flex: "1",
     padding: "8px",
     border: "1px solid #ccc",
     borderRadius: "4px",
+  },
+  searchButton: {
+    padding: "8px 16px",
+    backgroundColor: "#007BFF",
+    color: "#fff",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer",
+  },
+  addForm: {
+    display: "flex",
+    gap: "10px",
+    marginBottom: "20px",
+    alignItems: "center",
   },
   select: {
     padding: "8px",
