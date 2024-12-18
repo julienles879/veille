@@ -8,15 +8,14 @@ const FeedDetail = () => {
   const [articles, setArticles] = useState([]); // Liste des articles
   const [filters, setFilters] = useState({
     search: "",
-    limit: 30,
-  }); // Filtres pour la recherche et la pagination
+  }); // Filtres uniquement pour la recherche par mot-clé
 
   // Fonction pour récupérer les articles avec les filtres
   const fetchArticles = useCallback(() => {
-    let query = `/feeds/feeds/${id}/articles/?limit=${filters.limit}`;
+    let query = `/feeds/feeds/${id}/articles/`;
 
     if (filters.search.trim() !== "") {
-      query += `&search=${filters.search}`;
+      query += `?search=${filters.search}`;
     }
 
     console.log("Requête API générée :", query); // Log de la requête API
@@ -30,7 +29,7 @@ const FeedDetail = () => {
       .catch((error) => {
         console.error("Erreur lors de la récupération des articles :", error);
       });
-  }, [id, filters.limit, filters.search]);
+  }, [id, filters.search]);
 
   useEffect(() => {
     fetchArticles();
@@ -52,28 +51,13 @@ const FeedDetail = () => {
     <div style={{ padding: "20px" }}>
       <h1>Articles du Flux</h1>
 
-      {/* Composant de filtres */}
+      {/* Composant de filtres uniquement pour la recherche */}
       <Filters
         onFilterChange={handleFilterChange}
         filters={filters}
-        showSort={false} // Désactiver le tri si non nécessaire
+        showCategory={false} // Désactiver les catégories
+        showSort={false} // Désactiver le tri
       />
-
-      {/* Sélecteur pour la limite */}
-      <div style={{ marginBottom: "20px" }}>
-        <label>Afficher par :</label>
-        <select
-          value={filters.limit}
-          onChange={(e) =>
-            handleFilterChange({ limit: parseInt(e.target.value, 10) })
-          }
-          style={{ marginLeft: "10px", padding: "5px" }}
-        >
-          <option value="30">30 articles</option>
-          <option value="40">40 articles</option>
-          <option value="50">50 articles</option>
-        </select>
-      </div>
 
       {/* Affichage des articles */}
       <div>

@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 
-const Filters = ({ onFilterChange, filters, showSort = true }) => {
+const Filters = ({
+  onFilterChange,
+  filters,
+  showCategory = true, // Nouveau paramètre : contrôler l'affichage des catégories
+  showSort = true, // Contrôler l'affichage du tri
+}) => {
   const [search, setSearch] = useState(filters.search || "");
   const [selectedCategory, setSelectedCategory] = useState(filters.category || "");
   const [categories, setCategories] = useState([]); // Liste des catégories disponibles
@@ -8,22 +13,24 @@ const Filters = ({ onFilterChange, filters, showSort = true }) => {
 
   // Charger les catégories depuis l'API
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/feeds/categories/")
-      .then((res) => res.json())
-      .then((data) => setCategories(data))
-      .catch((err) =>
-        console.error("Erreur lors du chargement des catégories :", err)
-      );
-  }, []);
+    if (showCategory) {
+      fetch("http://127.0.0.1:8000/feeds/categories/")
+        .then((res) => res.json())
+        .then((data) => setCategories(data))
+        .catch((err) =>
+          console.error("Erreur lors du chargement des catégories :", err)
+        );
+    }
+  }, [showCategory]);
 
   // Appeler onFilterChange dès que les filtres changent
   useEffect(() => {
     onFilterChange({
       search,
-      category: selectedCategory,
+      ...(showCategory && { category: selectedCategory }),
       ...(showSort && { sort }),
     });
-  }, [search, selectedCategory, sort, onFilterChange, showSort]);
+  }, [search, selectedCategory, sort, onFilterChange, showCategory, showSort]);
 
   return (
     <div style={styles.filtersContainer}>
@@ -36,19 +43,21 @@ const Filters = ({ onFilterChange, filters, showSort = true }) => {
         style={styles.input}
       />
 
-      {/* Filtre par catégorie */}
-      <select
-        value={selectedCategory}
-        onChange={(e) => setSelectedCategory(e.target.value)}
-        style={styles.select}
-      >
-        <option value="">Toutes catégories</option> {/* Option par défaut */}
-        {categories.map((category) => (
-          <option key={category.id} value={category.name}>
-            {category.name}
-          </option>
-        ))}
-      </select>
+      {/* Filtre par catégorie (affiché uniquement si showCategory est true) */}
+      {showCategory && (
+        <select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          style={styles.select}
+        >
+          <option value="">Toutes catégories</option> {/* Option par défaut */}
+          {categories.map((category) => (
+            <option key={category.id} value={category.name}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+      )}
 
       {/* Sélecteur de tri (affiché uniquement si showSort est true) */}
       {showSort && (
