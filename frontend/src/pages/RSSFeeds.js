@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { Link } from "react-router-dom"; // Pour la redirection
 import api from "../api";
 import Filters from "../components/Filters";
 
@@ -22,7 +23,7 @@ const RSSFeeds = () => {
       .catch((error) =>
         console.error("Erreur lors de la récupération des flux :", error)
       );
-  }, [search, sort, category]); // Dépendances stabilisées
+  }, [search, sort, category]);
 
   // Recharger les données dès que les filtres changent
   useEffect(() => {
@@ -53,6 +54,20 @@ const RSSFeeds = () => {
             <li key={feed.id} style={{ marginBottom: "20px" }}>
               <h3>{feed.title}</h3>
               <p>{feed.description}</p>
+              <p>
+                <strong>Catégorie :</strong>{" "}
+                {feed.category ? feed.category.name : "Non catégorisé"}
+              </p>
+              <Link
+                to={`/feeds/${feed.id}`}
+                style={{
+                  textDecoration: "none",
+                  color: "blue",
+                  fontWeight: "bold",
+                }}
+              >
+                Voir les articles du flux
+              </Link>
             </li>
           ))
         ) : (

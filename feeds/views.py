@@ -92,17 +92,27 @@ class ArticlePagination(PageNumberPagination):
     max_page_size = 50
 
 
+from django.db.models import Q
 
 class FeedArticlesView(generics.ListAPIView):
     """
-    Vue pour lister les articles associés à un flux RSS avec pagination.
+    Vue pour lister les articles associés à un flux RSS avec pagination et recherche.
     """
     serializer_class = RSSFeedEntrySerializer
     pagination_class = ArticlePagination
 
     def get_queryset(self):
         feed_id = self.kwargs.get('feed_id')
-        return RSSFeedEntry.objects.filter(feed_id=feed_id).order_by('-published_at')
+        queryset = RSSFeedEntry.objects.filter(feed_id=feed_id).order_by('-published_at')
+        
+        # Ajouter une recherche simple
+        search_term = self.request.query_params.get('search', None)
+        if search_term:
+            queryset = queryset.filter(
+                Q(title__icontains=search_term) | Q(content__icontains=search_term)
+            )
+        return queryset
+
 
 
 class RSSFeedDetailView(APIView):
