@@ -6,20 +6,17 @@ const Home = () => {
   const [articles, setArticles] = useState([]); // Articles affichés
   const [filters, setFilters] = useState({
     search: "",
-    limit: 30, // Par défaut, 30 articles
-    category: "", // Catégorie sélectionnée
+    limit: 30,
+    category: "",
   });
 
-  // Fonction pour récupérer les articles récents avec gestion des filtres
+  // Récupérer les articles avec gestion des favoris
   const fetchArticles = useCallback(() => {
     let query = `/feeds/articles/recent/?limit=${filters.limit}`;
 
-    // Filtrer par catégorie
     if (filters.category && filters.category !== "Toutes catégories") {
       query += `&category=${filters.category}`;
     }
-
-    // Si une recherche est effectuée
     if (filters.search.trim() !== "") {
       query = `/feeds/articles/search/?search=${filters.search}&limit=${filters.limit}`;
       if (filters.category && filters.category !== "Toutes catégories") {
@@ -27,29 +24,45 @@ const Home = () => {
       }
     }
 
-    // Appel API pour récupérer les articles
     api
       .get(query)
-      .then((response) => {
-        setArticles(response.data);
-      })
+      .then((response) => setArticles(response.data))
       .catch((error) =>
         console.error("Erreur lors de la récupération des articles :", error)
       );
   }, [filters.search, filters.limit, filters.category]);
 
-  // Fonction pour mettre à jour les filtres
+  useEffect(() => {
+    fetchArticles();
+  }, [fetchArticles]);
+
+  // Ajouter/Supprimer un favori
+  const toggleFavorite = (articleId, isFavorite) => {
+    if (isFavorite) {
+      // Supprimer des favoris
+      api
+        .delete(`/articles/favorites/remove/${articleId}/`)
+        .then(() => fetchArticles()) // Actualiser les articles
+        .catch((error) =>
+          console.error("Erreur lors de la suppression des favoris :", error)
+        );
+    } else {
+      // Ajouter aux favoris
+      api
+        .post(`/articles/favorites/add/`, { article_id: articleId })
+        .then(() => fetchArticles()) // Actualiser les articles
+        .catch((error) =>
+          console.error("Erreur lors de l'ajout aux favoris :", error)
+        );
+    }
+  };
+
   const handleFilterChange = useCallback((newFilters) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
       ...newFilters,
     }));
   }, []);
-
-  // Appel initial et lorsqu'un filtre change
-  useEffect(() => {
-    fetchArticles();
-  }, [fetchArticles]);
 
   return (
     <div style={{ padding: "20px" }}>
@@ -59,7 +72,7 @@ const Home = () => {
       <Filters
         onFilterChange={handleFilterChange}
         filters={filters}
-        showSort={false} // On masque le tri ici
+        showSort={false}
       />
 
       {/* Sélecteur pour la limite */}
@@ -95,6 +108,18 @@ const Home = () => {
               <a href={article.link} target="_blank" rel="noopener noreferrer">
                 Lire plus
               </a>
+              {/* Icône pour ajouter/supprimer des favoris */}
+              <button
+                onClick={() => toggleFavorite(article.id, article.is_favorite)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "20px",
+                }}
+              >
+                {article.is_favorite ? "❤️" : "🤍"}
+              </button>
             </div>
           ))
         ) : (
@@ -111,6 +136,7 @@ const styles = {
     padding: "15px",
     border: "1px solid #ddd",
     borderRadius: "4px",
+    position: "relative",
   },
 };
 

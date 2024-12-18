@@ -7,6 +7,37 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import *
 from .serializers import *
 
+class AddFavoriteView(APIView):
+    """
+    Vue pour ajouter un article dans les favoris.
+    """
+    def post(self, request, *args, **kwargs):
+        article_id = request.data.get('article_id')
+        if not article_id:
+            return Response({"error": "Article ID is required."}, status=HTTP_400_BAD_REQUEST)
+
+        try:
+            article = RSSFeedEntry.objects.get(id=article_id)
+            favorite, created = Favorite.objects.get_or_create(article=article)
+            if created:
+                return Response({"message": "Article ajouté aux favoris."}, status=HTTP_201_CREATED)
+            return Response({"message": "Article déjà dans les favoris."}, status=HTTP_200_OK)
+        except RSSFeedEntry.DoesNotExist:
+            return Response({"error": "Article non trouvé."}, status=HTTP_404_NOT_FOUND)
+
+
+class RemoveFavoriteView(APIView):
+    """
+    Vue pour supprimer un article des favoris.
+    """
+    def delete(self, request, article_id):
+        try:
+            favorite = Favorite.objects.get(article_id=article_id)
+            favorite.delete()
+            return Response({"message": "Article supprimé des favoris."}, status=HTTP_200_OK)
+        except Favorite.DoesNotExist:
+            return Response({"error": "L'article n'est pas dans les favoris."}, status=HTTP_404_NOT_FOUND)
+
 
 class FavoriteListView(APIView):
     """

@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import *
 
-
 class FavoriteSerializer(serializers.ModelSerializer):
     """
     Sérialiseur pour gérer les favoris.
@@ -18,26 +17,36 @@ class FavoriteSerializer(serializers.ModelSerializer):
 class RSSFeedEntrySerializer(serializers.ModelSerializer):
     """
     Serializer pour le modèle RSSFeedEntry.
-    Inclut les informations sur l'image de la catégorie associée.
+    Inclut les informations sur les favoris.
     """
-    feed_title = serializers.CharField(source='feed.title', read_only=True)  # Titre du flux RSS
-    category = serializers.CharField(source='feed.category.name', read_only=True)  # Nom de la catégorie
-    published_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)  # Format date/heure
+    feed_title = serializers.CharField(source='feed.title', read_only=True)
+    category = serializers.CharField(source='feed.category.name', read_only=True)
+    published_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
+    is_favorite = serializers.SerializerMethodField()  # Champ pour vérifier si en favori
 
     class Meta:
         model = RSSFeedEntry
         fields = [
             'id',
-            'feed',  # ID du flux RSS associé
-            'feed_title',  # Titre du flux associé
-            'category',  # Catégorie associée
+            'feed',
+            'feed_title',
+            'category',
             'title',
             'link',
             'content',
-            'published_at',  # Date et heure de parution
+            'published_at',
+            'is_favorite',  # Ajout du champ pour vérifier si en favori
         ]
-        read_only_fields = ['id', 'feed', 'feed_title', 'category', 'published_at']
 
+    def get_is_favorite(self, obj):
+        """
+        Retourne True si l'article est marqué comme favori pour l'utilisateur authentifié.
+        Si l'utilisateur n'est pas authentifié, retourne False.
+        """
+        request = self.context.get('request', None)  # Récupérer la requête
+        if request and request.user.is_authenticated:  # Vérifier si l'utilisateur est connecté
+            return Favorite.objects.filter(article=obj, article__id=obj.id).exists()
+        return False  # Si non authentifié, retourne False
 
     def get_category_image(self, obj):
         """

@@ -1,36 +1,38 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import api from "../api";
-import Filters from "../components/Filters"; // Import du composant de filtres
+import Filters from "../components/Filters";
 
 const Favorites = () => {
   const [favorites, setFavorites] = useState([]); // Liste complète des favoris
-  const [filteredFavorites, setFilteredFavorites] = useState([]); // Liste filtrée
   const [error, setError] = useState(null); // Gestion des erreurs
   const [filters, setFilters] = useState({
-    search: "", // Mot-clé pour la recherche
-    category: "", // Filtre par catégorie
+    search: "",
+    category: "",
   });
 
-  // Fonction pour récupérer les articles favoris
+  // Fonction stable pour récupérer les favoris
   const fetchFavorites = useCallback(() => {
     api
       .get("/articles/favorites/")
       .then((response) => {
         setFavorites(response.data);
-        setFilteredFavorites(response.data); // Initialise la liste filtrée
         setError(null);
       })
       .catch((error) => {
         console.error("Erreur lors de la récupération des favoris :", error);
         setError("Impossible de charger les articles favoris.");
       });
-  }, []);
+  }, []); // Pas de dépendances, elle ne change jamais
 
-  // Fonction pour appliquer les filtres
-  const applyFilters = useCallback(() => {
+  // Charger les favoris une seule fois
+  useEffect(() => {
+    fetchFavorites();
+  }, [fetchFavorites]); // Utiliser la version stable de fetchFavorites
+
+  // Application des filtres en mémoire
+  const filteredFavorites = useMemo(() => {
     let filtered = favorites;
 
-    // Filtrer par mot-clé (search)
     if (filters.search.trim() !== "") {
       filtered = filtered.filter((article) =>
         article.title.toLowerCase().includes(filters.search.toLowerCase()) ||
@@ -38,33 +40,24 @@ const Favorites = () => {
       );
     }
 
-    // Filtrer par catégorie
     if (filters.category) {
       filtered = filtered.filter(
-        (article) => article.category === filters.category
+        (article) =>
+          article.category &&
+          article.category.toLowerCase() === filters.category.toLowerCase()
       );
     }
 
-    setFilteredFavorites(filtered);
-  }, [favorites, filters.search, filters.category]);
-
-  // Charger les favoris au montage
-  useEffect(() => {
-    fetchFavorites();
-  }, [fetchFavorites]);
-
-  // Appliquer les filtres quand les valeurs changent
-  useEffect(() => {
-    applyFilters();
-  }, [applyFilters]);
+    return filtered;
+  }, [favorites, filters.search, filters.category]); // Dépend uniquement de ses inputs
 
   // Mise à jour des filtres
-  const handleFilterChange = (newFilters) => {
+  const handleFilterChange = useCallback((newFilters) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
       ...newFilters,
     }));
-  };
+  }, []);
 
   return (
     <div style={{ padding: "20px" }}>
@@ -74,7 +67,7 @@ const Favorites = () => {
       <Filters
         onFilterChange={handleFilterChange}
         filters={filters}
-        showSort={false} // Pas besoin du tri ici
+        showSort={false}
       />
 
       {/* Affichage des erreurs */}
@@ -83,7 +76,7 @@ const Favorites = () => {
       {/* Liste des articles favoris filtrés */}
       {filteredFavorites.length > 0 ? (
         filteredFavorites.map((favorite) => (
-          <div key={favorite.id} style={{ marginBottom: "20px" }}>
+          <div key={favorite.id} style={styles.articleCard}>
             <h3>{favorite.title}</h3>
             <p>{favorite.content}</p>
             <p>
@@ -100,6 +93,16 @@ const Favorites = () => {
       )}
     </div>
   );
+};
+
+// Styles
+const styles = {
+  articleCard: {
+    marginBottom: "20px",
+    padding: "15px",
+    border: "1px solid #ddd",
+    borderRadius: "4px",
+  },
 };
 
 export default Favorites;

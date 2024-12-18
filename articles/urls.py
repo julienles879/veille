@@ -8,4 +8,7 @@ urlpatterns = [
     path('favorites/', FavoriteListView.as_view(), name='favorite-list'),
     path('favorites/add/', AddFavoriteView.as_view(), name='add-favorite'),
     path('favorites/remove/<int:article_id>/', RemoveFavoriteView.as_view(), name='remove-favorite'),
+    path('favorites/', FavoriteListView.as_view(), name='favorite-list'),
+    path('favorites/add/', AddFavoriteView.as_view(), name='add-favorite'),
+    path('favorites/remove/<int:article_id>/', RemoveFavoriteView.as_view(), name='remove-favorite'),
 ]
