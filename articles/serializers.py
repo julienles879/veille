@@ -40,13 +40,10 @@ class RSSFeedEntrySerializer(serializers.ModelSerializer):
 
     def get_is_favorite(self, obj):
         """
-        Retourne True si l'article est marqué comme favori pour l'utilisateur authentifié.
-        Si l'utilisateur n'est pas authentifié, retourne False.
+        Retourne True si l'article est marqué comme favori (indépendamment d'un utilisateur).
         """
-        request = self.context.get('request', None)  # Récupérer la requête
-        if request and request.user.is_authenticated:  # Vérifier si l'utilisateur est connecté
-            return Favorite.objects.filter(article=obj, article__id=obj.id).exists()
-        return False  # Si non authentifié, retourne False
+        return Favorite.objects.filter(article=obj).exists()
+
 
     def get_category_image(self, obj):
         """

@@ -22,12 +22,33 @@ const Favorites = () => {
         console.error("Erreur lors de la récupération des favoris :", error);
         setError("Impossible de charger les articles favoris.");
       });
-  }, []); // Pas de dépendances, elle ne change jamais
+  }, []);
 
   // Charger les favoris une seule fois
   useEffect(() => {
     fetchFavorites();
-  }, [fetchFavorites]); // Utiliser la version stable de fetchFavorites
+  }, [fetchFavorites]);
+
+  // Ajouter/Supprimer un favori
+  const toggleFavorite = (articleId, isFavorite) => {
+    if (isFavorite) {
+      // Supprimer des favoris
+      api
+        .delete(`/articles/favorites/remove/${articleId}/`)
+        .then(() => fetchFavorites()) // Actualiser les favoris
+        .catch((error) =>
+          console.error("Erreur lors de la suppression des favoris :", error)
+        );
+    } else {
+      // Ajouter aux favoris
+      api
+        .post(`/articles/favorites/add/`, { article_id: articleId })
+        .then(() => fetchFavorites()) // Actualiser les favoris
+        .catch((error) =>
+          console.error("Erreur lors de l'ajout aux favoris :", error)
+        );
+    }
+  };
 
   // Application des filtres en mémoire
   const filteredFavorites = useMemo(() => {
@@ -49,7 +70,7 @@ const Favorites = () => {
     }
 
     return filtered;
-  }, [favorites, filters.search, filters.category]); // Dépend uniquement de ses inputs
+  }, [favorites, filters.search, filters.category]);
 
   // Mise à jour des filtres
   const handleFilterChange = useCallback((newFilters) => {
@@ -86,6 +107,20 @@ const Favorites = () => {
             <a href={favorite.link} target="_blank" rel="noopener noreferrer">
               Lire plus
             </a>
+            {/* Icône pour ajouter/supprimer des favoris */}
+            <button
+              onClick={() =>
+                toggleFavorite(favorite.id, favorite.is_favorite)
+              }
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                fontSize: "24px",
+              }}
+            >
+              {favorite.is_favorite ? "❤️" : "🤍"}
+            </button>
           </div>
         ))
       ) : (

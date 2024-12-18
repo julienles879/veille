@@ -1,7 +1,7 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP_200_OK
 from rest_framework.filters import OrderingFilter, SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import *
@@ -41,13 +41,14 @@ class RemoveFavoriteView(APIView):
 
 class FavoriteListView(APIView):
     """
-    Vue pour lister les favoris.
+    Vue pour lister tous les favoris.
     """
     def get(self, request):
         favorites = Favorite.objects.all()
         articles = [favorite.article for favorite in favorites]
         serializer = RSSFeedEntrySerializer(articles, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=HTTP_200_OK)
+
 
 class AddFavoriteView(APIView):
     """

@@ -26,7 +26,10 @@ const Home = () => {
 
     api
       .get(query)
-      .then((response) => setArticles(response.data))
+      .then((response) => {
+        console.log("Articles reçus :", response.data); // Log pour vérifier la réponse
+        setArticles(response.data);
+      })
       .catch((error) =>
         console.error("Erreur lors de la récupération des articles :", error)
       );
@@ -40,17 +43,25 @@ const Home = () => {
   const toggleFavorite = (articleId, isFavorite) => {
     if (isFavorite) {
       // Supprimer des favoris
+      console.log("Suppression du favori, article ID :", articleId); // Log pour vérifier l'ID
       api
         .delete(`/articles/favorites/remove/${articleId}/`)
-        .then(() => fetchArticles()) // Actualiser les articles
+        .then(() => {
+          console.log("Favori supprimé avec succès");
+          fetchArticles(); // Actualiser les articles
+        })
         .catch((error) =>
           console.error("Erreur lors de la suppression des favoris :", error)
         );
     } else {
       // Ajouter aux favoris
+      console.log("Ajout aux favoris, article ID :", articleId); // Log pour vérifier l'ID
       api
         .post(`/articles/favorites/add/`, { article_id: articleId })
-        .then(() => fetchArticles()) // Actualiser les articles
+        .then(() => {
+          console.log("Article ajouté aux favoris avec succès");
+          fetchArticles(); // Actualiser les articles
+        })
         .catch((error) =>
           console.error("Erreur lors de l'ajout aux favoris :", error)
         );
