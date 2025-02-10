@@ -1,153 +1,160 @@
+//frontend/src/pages/Home.js
+
 import React, { useEffect, useState, useCallback } from "react";
+import { Link } from "react-router-dom";
 import api from "../api";
 import Filters from "../components/Filters";
 
 const Home = () => {
-  const [articles, setArticles] = useState([]); // Articles affichés
+  const [articles, setArticles] = useState([]);
+  const [nextPage, setNextPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+
   const [filters, setFilters] = useState({
     search: "",
-    limit: 30,
     category: "",
   });
 
-  // Récupérer les articles avec gestion des favoris
-  const fetchArticles = useCallback(() => {
-    let query = `/feeds/articles/recent/?limit=${filters.limit}`;
+  // Fonction pour récupérer les articles avec pagination
+  const fetchArticles = useCallback(
+    async (page = 1) => {
+      if (!hasMore || isLoading) return; // Stop si pas plus d'articles ou si en chargement
+      
+      setIsLoading(true);
+      
+      let query = `/feeds/articles/recent/?page=${page}`;
 
-    if (filters.category && filters.category !== "Toutes catégories") {
-      query += `&category=${filters.category}`;
-    }
-    if (filters.search.trim() !== "") {
-      query = `/feeds/articles/search/?search=${filters.search}&limit=${filters.limit}`;
-      if (filters.category && filters.category !== "Toutes catégories") {
+      if (filters.category) {
         query += `&category=${filters.category}`;
       }
-    }
+      if (filters.search.trim() !== "") {
+        query = `/feeds/articles/search/?search=${filters.search}&page=${page}`;
+        if (filters.category) {
+          query += `&category=${filters.category}`;
+        }
+      }
 
-    api
-      .get(query)
-      .then((response) => {
-        console.log("Articles reçus :", response.data); // Log pour vérifier la réponse
-        setArticles(response.data);
-      })
-      .catch((error) =>
-        console.error("Erreur lors de la récupération des articles :", error)
-      );
-  }, [filters.search, filters.limit, filters.category]);
+      try {
+        const response = await api.get(query);
+        console.log("🔄 Articles chargés :", response.data);
 
+        if (response.data.results.length > 0) {
+          setArticles((prevArticles) => [...prevArticles, ...response.data.results]);
+          setNextPage(page + 1);
+        } else {
+          setHasMore(false);
+        }
+      } catch (error) {
+        console.error("❌ Erreur lors de la récupération des articles :", error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [filters, hasMore, isLoading]
+  );
+
+  // Charger les articles initiaux lorsqu'on change de filtre
   useEffect(() => {
-    fetchArticles();
-  }, [fetchArticles]);
+    setArticles([]);
+    setNextPage(1);
+    setHasMore(true);
+    fetchArticles(1);
+  }, [filters, fetchArticles]);
 
-  // Ajouter/Supprimer un favori
-  const toggleFavorite = (articleId, isFavorite) => {
-    if (isFavorite) {
-      // Supprimer des favoris
-      console.log("Suppression du favori, article ID :", articleId); // Log pour vérifier l'ID
-      api
-        .delete(`/articles/favorites/remove/${articleId}/`)
-        .then(() => {
-          console.log("Favori supprimé avec succès");
-          fetchArticles(); // Actualiser les articles
-        })
-        .catch((error) =>
-          console.error("Erreur lors de la suppression des favoris :", error)
-        );
-    } else {
-      // Ajouter aux favoris
-      console.log("Ajout aux favoris, article ID :", articleId); // Log pour vérifier l'ID
-      api
-        .post(`/articles/favorites/add/`, { article_id: articleId })
-        .then(() => {
-          console.log("Article ajouté aux favoris avec succès");
-          fetchArticles(); // Actualiser les articles
-        })
-        .catch((error) =>
-          console.error("Erreur lors de l'ajout aux favoris :", error)
-        );
-    }
-  };
+  // Gestion du scroll infini
+  useEffect(() => {
+    if (!hasMore) return; // Si plus d'articles, ne pas écouter l'événement
 
-  const handleFilterChange = useCallback((newFilters) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      ...newFilters,
-    }));
-  }, []);
+    let isThrottled = false;
+
+    const handleScroll = () => {
+      if (isThrottled) return;
+      
+      if (
+        window.innerHeight + document.documentElement.scrollTop >=
+        document.documentElement.offsetHeight - 200
+      ) {
+        fetchArticles(nextPage);
+      }
+
+      isThrottled = true;
+      setTimeout(() => {
+        isThrottled = false;
+      }, 500);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [fetchArticles, nextPage, hasMore]);
 
   return (
     <div style={{ padding: "20px" }}>
       <h1>Articles Récents</h1>
+      <Filters filters={filters} onFilterChange={setFilters} showCategory={true} showSort={false} />
 
-      {/* Composant de filtres */}
-      <Filters
-        onFilterChange={handleFilterChange}
-        filters={filters}
-        showSort={false}
-      />
-
-      {/* Sélecteur pour la limite */}
-      <div style={{ marginBottom: "20px" }}>
-        <label>Afficher par :</label>
-        <select
-          value={filters.limit}
-          onChange={(e) =>
-            handleFilterChange({ limit: parseInt(e.target.value, 10) })
-          }
-          style={{ marginLeft: "10px", padding: "5px" }}
-        >
-          <option value="30">30 articles</option>
-          <option value="40">40 articles</option>
-          <option value="50">50 articles</option>
-        </select>
-      </div>
-
-      {/* Affichage des articles */}
-      <div>
-        {articles.length > 0 ? (
-          articles.map((article) => (
-            <div key={article.id} style={styles.articleCard}>
-              <h3>{article.title}</h3>
-              <p>{article.content}</p>
-              <p>
-                <strong>Catégorie :</strong>{" "}
+      <div style={styles.articleList}>
+        {articles.map((article) => (
+          <div key={article.id} style={styles.articleCard}>
+            <Link to={`/article/${article.id}`} style={styles.articleTitle}>
+              {article.title}
+            </Link>
+            <p style={styles.feedName}>
+              <strong>Source :</strong>{" "}
+              <Link to={`/feeds/${article.feed_id}`} style={styles.feedLink}>
+                {article.feed_title || "Inconnu"}
+              </Link>
+            </p>
+            <div dangerouslySetInnerHTML={{ __html: article.content }} style={styles.articleContent} />
+            <p>
+              <strong>Catégorie :</strong>{" "}
+              <Link to={`/categories/${article.category}`} style={styles.categoryLink}>
                 {article.category || "Non catégorisé"}
-              </p>
-              <p>
-                <strong>Publié le :</strong> {article.published_at}
-              </p>
-              <a href={article.link} target="_blank" rel="noopener noreferrer">
-                Lire plus
-              </a>
-              {/* Icône pour ajouter/supprimer des favoris */}
-              <button
-                onClick={() => toggleFavorite(article.id, article.is_favorite)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: "20px",
-                }}
-              >
-                {article.is_favorite ? "❤️" : "🤍"}
-              </button>
-            </div>
-          ))
-        ) : (
-          <p>Aucun article trouvé.</p>
-        )}
+              </Link>
+            </p>
+            <p>
+              <strong>Publié le :</strong> {article.published_at}
+            </p>
+            <a href={article.link} target="_blank" rel="noopener noreferrer" style={styles.readMore}>
+              Lire plus
+            </a>
+          </div>
+        ))}
       </div>
+
+      {/* Loader de chargement */}
+      {isLoading && <p style={styles.loadingText}>Chargement...</p>}
     </div>
   );
 };
 
 const styles = {
+  articleList: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+    gap: "20px",
+  },
   articleCard: {
-    marginBottom: "20px",
     padding: "15px",
     border: "1px solid #ddd",
-    borderRadius: "4px",
+    borderRadius: "8px",
+    backgroundColor: "#f9f9f9",
+    boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
     position: "relative",
+  },
+  articleTitle: {
+    fontSize: "18px",
+    fontWeight: "bold",
+    textDecoration: "none",
+    color: "#000",
+    display: "block",
+    marginBottom: "10px",
+  },
+  loadingText: {
+    textAlign: "center",
+    margin: "20px 0",
+    fontSize: "16px",
+    color: "#555",
   },
 };
 

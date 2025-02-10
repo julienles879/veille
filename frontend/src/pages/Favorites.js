@@ -21,7 +21,7 @@ const Favorites = () => {
       .catch((error) => {
         console.error("Erreur lors de la récupération des favoris :", error);
         setError("Impossible de charger les articles favoris.");
-      });
+      }); 
   }, []);
 
   // Charger les favoris une seule fois

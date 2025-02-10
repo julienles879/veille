@@ -1,94 +1,101 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import api from "../api";
 import Filters from "../components/Filters";
 
 const FeedDetail = () => {
-  const { id } = useParams(); // ID du flux
-  const [articles, setArticles] = useState([]); // Liste des articles
-  const [filters, setFilters] = useState({
-    search: "",
-  }); // Filtres uniquement pour la recherche par mot-clé
+  const { id } = useParams();
+  const [articles, setArticles] = useState([]);
+  const [filters, setFilters] = useState({ search: "" });
 
-  // Fonction pour récupérer les articles avec les filtres
   const fetchArticles = useCallback(() => {
     let query = `/feeds/feeds/${id}/articles/`;
-
     if (filters.search.trim() !== "") {
       query += `?search=${filters.search}`;
     }
 
-    console.log("Requête API générée :", query); // Log de la requête API
-
-    api
-      .get(query)
-      .then((response) => {
-        console.log("Réponse API reçue :", response.data.results || []); // Log des articles reçus
-        setArticles(response.data.results || []); // Mettre à jour les articles
-      })
-      .catch((error) => {
-        console.error("Erreur lors de la récupération des articles :", error);
-      });
-  }, [id, filters.search]);
-
+    api.get(query)
+      .then((response) => setArticles(response.data.results || []))
+      .catch((error) => console.error("Erreur lors de la récupération des articles :", error));
+  }, [id, filters]);
+ 
   useEffect(() => {
     fetchArticles();
-  }, [fetchArticles]); // Appeler fetchArticles à chaque mise à jour des filtres
-
-  const handleFilterChange = useCallback((newFilters) => {
-    console.log("Nouveaux filtres appliqués :", newFilters); // Log des nouveaux filtres
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      ...newFilters,
-    }));
-  }, []);
-
-  useEffect(() => {
-    console.log("Articles affichés après recherche :", articles); // Log des articles actuellement affichés
-  }, [articles]);
+  }, [fetchArticles]);
 
   return (
     <div style={{ padding: "20px" }}>
       <h1>Articles du Flux</h1>
+      <Filters filters={filters} onFilterChange={setFilters} showCategory={false} showSort={false} />
 
-      {/* Composant de filtres uniquement pour la recherche */}
-      <Filters
-        onFilterChange={handleFilterChange}
-        filters={filters}
-        showCategory={false} // Désactiver les catégories
-        showSort={false} // Désactiver le tri
-      />
-
-      {/* Affichage des articles */}
-      <div>
-        {articles.length > 0 ? (
-          articles.map((article) => (
-            <div key={article.id} style={styles.articleCard}>
-              <h3>{article.title}</h3>
-              <p>{article.content}</p>
-              <p>
-                <strong>Publié le :</strong> {article.published_at || "N/A"}
-              </p>
-              <a href={article.link} target="_blank" rel="noopener noreferrer">
-                Lire plus
-              </a>
-            </div>
-          ))
-        ) : (
-          <p>Aucun article trouvé.</p>
-        )}
+      <div style={styles.articleGrid}>
+        {articles.map((article) => (
+          <div key={article.id} style={styles.articleCard}>
+            <Link to={`/article/${article.id}`} style={styles.articleTitle}>
+              {article.title}
+            </Link>
+          </div>
+        ))}
       </div>
     </div>
   );
 };
 
+// Styles inchangés
 const styles = {
+  articleList: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+    gap: "20px",
+  },
   articleCard: {
-    marginBottom: "20px",
     padding: "15px",
     border: "1px solid #ddd",
-    borderRadius: "4px",
+    borderRadius: "8px",
+    backgroundColor: "#f9f9f9",
+    boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
     position: "relative",
+  },
+  articleTitle: {
+    fontSize: "18px",
+    fontWeight: "bold",
+    textDecoration: "none",
+    color: "#000",
+    display: "block",
+    marginBottom: "10px",
+  },
+  feedName: {
+    fontSize: "14px",
+    color: "#007BFF",
+    marginBottom: "10px",
+  },
+  feedLink: {
+    textDecoration: "none",
+    color: "#007BFF",
+  },
+  categoryLink: {
+    textDecoration: "none",
+    color: "#28a745",
+  },
+  select: {
+    padding: "8px",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    marginLeft: "10px",
+  },
+  favoriteButton: {
+    background: "none",
+    border: "none",
+    cursor: "pointer",
+    fontSize: "20px",
+    position: "absolute",
+    top: "10px",
+    right: "10px",
+  },
+  readMore: {
+    color: "#007BFF",
+    textDecoration: "none",
+    fontWeight: "bold",
   },
 };
 

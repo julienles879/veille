@@ -1,40 +1,77 @@
 import React, { useState, useEffect } from "react";
+import api from "../api";
 
 const Filters = ({
-  onFilterChange,
   filters,
-  showCategory = true, // Nouveau paramètre : contrôler l'affichage des catégories
-  showSort = true, // Contrôler l'affichage du tri
+  onFilterChange,
+  showCategory = true,
+  showFeed = false,
+  showSort = true,
 }) => {
   const [search, setSearch] = useState(filters.search || "");
   const [selectedCategory, setSelectedCategory] = useState(filters.category || "");
-  const [categories, setCategories] = useState([]); // Liste des catégories disponibles
-  const [sort, setSort] = useState(filters.sort || ""); // Tri
+  const [selectedFeed, setSelectedFeed] = useState(filters.feed || "");
+  const [sort, setSort] = useState(filters.sort || "");
+  const [categories, setCategories] = useState([]);
+  const [feeds, setFeeds] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Charger les catégories depuis l'API
+  // Charger les catégories et flux depuis l'API
   useEffect(() => {
     if (showCategory) {
-      fetch("http://127.0.0.1:8000/feeds/categories/")
-        .then((res) => res.json())
-        .then((data) => setCategories(data))
-        .catch((err) =>
-          console.error("Erreur lors du chargement des catégories :", err)
-        );
-    }
-  }, [showCategory]);
+      setIsLoading(true);
+      api
+        .get("/feeds/categories/")
+        .then((response) => {
+          console.log("📌 Réponse API catégories :", response.data);
 
-  // Appeler onFilterChange dès que les filtres changent
+          // Vérification pour éviter l'erreur .map()
+          const categoriesData = Array.isArray(response.data.results) ? response.data.results : [];
+          setCategories(categoriesData);
+        })
+        .catch((err) => {
+          console.error("❌ Erreur chargement catégories :", err);
+          setCategories([]);
+        })
+        .finally(() => setIsLoading(false));
+    }
+
+    if (showFeed) {
+      api
+        .get("/feeds/")
+        .then((response) => {
+          console.log("📌 Réponse API flux RSS :", response.data);
+
+          const feedsData = Array.isArray(response.data.results) ? response.data.results : [];
+          setFeeds(feedsData);
+        })
+        .catch((err) => {
+          console.error("❌ Erreur chargement flux RSS :", err);
+          setFeeds([]);
+        });
+    }
+  }, [showCategory, showFeed]);
+
+  // Mettre à jour les filtres à chaque changement
   useEffect(() => {
+    console.log("🔍 Filtres envoyés :", {
+      search,
+      category: selectedCategory,
+      feed: selectedFeed,
+      sort,
+    });
+
     onFilterChange({
       search,
       ...(showCategory && { category: selectedCategory }),
+      ...(showFeed && { feed: selectedFeed }),
       ...(showSort && { sort }),
     });
-  }, [search, selectedCategory, sort, onFilterChange, showCategory, showSort]);
+  }, [search, selectedCategory, selectedFeed, sort, onFilterChange, showCategory, showFeed, showSort]);
 
   return (
     <div style={styles.filtersContainer}>
-      {/* Barre de recherche */}
+      {/* Champ de recherche */}
       <input
         type="text"
         placeholder="Rechercher..."
@@ -43,23 +80,49 @@ const Filters = ({
         style={styles.input}
       />
 
-      {/* Filtre par catégorie (affiché uniquement si showCategory est true) */}
+      {/* Sélection de catégorie */}
       {showCategory && (
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
           style={styles.select}
         >
-          <option value="">Toutes catégories</option> {/* Option par défaut */}
-          {categories.map((category) => (
-            <option key={category.id} value={category.name}>
-              {category.name}
-            </option>
-          ))}
+          <option value="">Toutes catégories</option>
+          {isLoading ? (
+            <option disabled>Chargement...</option>
+          ) : categories.length > 0 ? (
+            categories.map((category) => (
+              <option key={category.id} value={category.name}>
+                {category.name}
+              </option>
+            ))
+          ) : (
+            <option disabled>Aucune catégorie</option>
+          )}
         </select>
       )}
 
-      {/* Sélecteur de tri (affiché uniquement si showSort est true) */}
+      {/* Sélection de flux (optionnel) */}
+      {showFeed && (
+        <select
+          value={selectedFeed}
+          onChange={(e) => setSelectedFeed(e.target.value)}
+          style={styles.select}
+        >
+          <option value="">Tous les flux</option>
+          {feeds.length > 0 ? (
+            feeds.map((feed) => (
+              <option key={feed.id} value={feed.id}>
+                {feed.title}
+              </option>
+            ))
+          ) : (
+            <option disabled>Aucun flux RSS</option>
+          )}
+        </select>
+      )}
+
+      {/* Sélection du tri */}
       {showSort && (
         <select
           value={sort}
