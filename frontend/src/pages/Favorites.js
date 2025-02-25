@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import api from "../api";
 import Filters from "../components/Filters"; // Import du composant de filtres
+import CardArticle from "../components/CardArticle"; // ✅ Import du composant CardArticle
 
 const Favorites = () => {
   const [favorites, setFavorites] = useState([]); // Liste complète des favoris
@@ -80,26 +81,27 @@ const Favorites = () => {
       {/* Affichage des erreurs */}
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {/* Liste des articles favoris filtrés */}
-      {filteredFavorites.length > 0 ? (
-        filteredFavorites.map((favorite) => (
-          <div key={favorite.id} style={{ marginBottom: "20px" }}>
-            <h3>{favorite.title}</h3>
-            <p>{favorite.content}</p>
-            <p>
-              <strong>Catégorie :</strong>{" "}
-              {favorite.category || "Non catégorisé"}
-            </p>
-            <a href={favorite.link} target="_blank" rel="noopener noreferrer">
-              Lire plus
-            </a>
-          </div>
-        ))
-      ) : (
-        <p>Aucun article favori trouvé.</p>
-      )}
+      {/* Liste des articles favoris filtrés sous forme de cartes */}
+      <div style={styles.grid}>
+        {filteredFavorites.length > 0 ? (
+          filteredFavorites.map((favorite) => (
+            <CardArticle key={favorite.id} article={favorite} />
+          ))
+        ) : (
+          <p>Aucun article favori trouvé.</p>
+        )}
+      </div>
     </div>
   );
+};
+
+const styles = {
+  grid: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "20px",
+    justifyContent: "center",
+  },
 };
 
 export default Favorites;

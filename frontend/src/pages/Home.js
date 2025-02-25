@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import api from "../api";
 import Filters from "../components/Filters";
+import CardArticle from "../components/CardArticle"; // ✅ Import du composant CardArticle
 
 const Home = () => {
   const [articles, setArticles] = useState([]); // Articles affichés
@@ -78,24 +79,11 @@ const Home = () => {
         </select>
       </div>
 
-      {/* Affichage des articles */}
-      <div>
+      {/* Affichage des articles avec CardArticle */}
+      <div style={styles.grid}>
         {articles.length > 0 ? (
           articles.map((article) => (
-            <div key={article.id} style={styles.articleCard}>
-              <h3>{article.title}</h3>
-              <p>{article.content}</p>
-              <p>
-                <strong>Catégorie :</strong>{" "}
-                {article.category || "Non catégorisé"}
-              </p>
-              <p>
-                <strong>Publié le :</strong> {article.published_at}
-              </p>
-              <a href={article.link} target="_blank" rel="noopener noreferrer">
-                Lire plus
-              </a>
-            </div>
+            <CardArticle key={article.id} article={article} />
           ))
         ) : (
           <p>Aucun article trouvé.</p>
@@ -106,11 +94,11 @@ const Home = () => {
 };
 
 const styles = {
-  articleCard: {
-    marginBottom: "20px",
-    padding: "15px",
-    border: "1px solid #ddd",
-    borderRadius: "4px",
+  grid: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "20px",
+    justifyContent: "center",
   },
 };
 

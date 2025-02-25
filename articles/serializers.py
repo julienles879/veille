@@ -1,3 +1,4 @@
+import re
 from rest_framework import serializers
 from .models import *
 
@@ -15,36 +16,49 @@ class FavoriteSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at', 'article_title', 'article_link']
 
 
+import re
+from rest_framework import serializers
+from .models import RSSFeedEntry, Favorite
+
 class RSSFeedEntrySerializer(serializers.ModelSerializer):
-    """
-    Serializer pour le modèle RSSFeedEntry.
-    Inclut les informations sur l'image de la catégorie associée.
-    """
-    feed_title = serializers.CharField(source='feed.title', read_only=True)  # Titre du flux RSS
-    category = serializers.CharField(source='feed.category.name', read_only=True)  # Nom de la catégorie
-    published_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)  # Format date/heure
+    feed_title = serializers.CharField(source='feed.title', read_only=True)
+    category = serializers.CharField(source='feed.category.name', read_only=True)
+    published_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
+    image = serializers.SerializerMethodField()  # ✅ Champ image dynamique
 
     class Meta:
         model = RSSFeedEntry
         fields = [
             'id',
-            'feed',  # ID du flux RSS associé
-            'feed_title',  # Titre du flux associé
-            'category',  # Catégorie associée
+            'feed',
+            'feed_title',
+            'category',
             'title',
             'link',
             'content',
-            'published_at',  # Date et heure de parution
+            'published_at',
+            'image',  # ✅ Image incluse
         ]
-        read_only_fields = ['id', 'feed', 'feed_title', 'category', 'published_at']
+        read_only_fields = ['id', 'feed', 'feed_title', 'category', 'published_at', 'image']
 
+    def get_image(self, obj):
+        """
+        Récupère l'image depuis obj.image, la catégorie ou extrait depuis le content si nécessaire.
+        """
+        # ✅ 1. Si l'image est stockée directement dans l'objet
+        if hasattr(obj, 'image') and obj.image:
+            return obj.image.url
 
-    def get_category_image(self, obj):
-        """
-        Retourne une image aléatoire parmi celles associées à la catégorie de l'article.
-        Si aucune catégorie ou image n'est associée, retourne None.
-        """
+        # ✅ 2. Si une image est liée à la catégorie
         category = obj.feed.category if obj.feed and obj.feed.category else None
         if category and category.image:
             return category.image.url
+
+        # ✅ 3. Extraire l'image du champ content via regex
+        if obj.content:
+            match = re.search(r'<img.*?src="(.*?)"', obj.content)
+            if match:
+                return match.group(1)  # L'URL de l'image extraite
+
+        # 🔴 4. Aucune image trouvée
         return None

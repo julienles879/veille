@@ -18,12 +18,17 @@ const Filters = ({ onFilterChange, filters, showSort = true }) => {
 
   // Appeler onFilterChange dès que les filtres changent
   useEffect(() => {
-    onFilterChange({
-      search,
-      category: selectedCategory,
-      ...(showSort && { sort }),
-    });
-  }, [search, selectedCategory, sort, onFilterChange, showSort]);
+    // Utilise setTimeout pour éviter les boucles infinies
+    const timer = setTimeout(() => {
+      onFilterChange({
+        search,
+        category: selectedCategory,
+        ...(showSort && { sort }),
+      });
+    }, 0);
+
+    return () => clearTimeout(timer); // Nettoie le timer lors du démontage
+  }, [search, selectedCategory, sort, showSort]);
 
   return (
     <div style={styles.filtersContainer}>

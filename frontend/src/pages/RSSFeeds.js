@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useCallback } from "react";
 import api from "../api";
 import Filters from "../components/Filters";
+import CardFeed from "../components/CardFeed"; // ✅ Import du composant
 
 const RSSFeeds = () => {
-  const [feeds, setFeeds] = useState([]); // Liste des flux RSS
-  const [search, setSearch] = useState(""); // Recherche
-  const [sort, setSort] = useState(""); // Tri
-  const [category, setCategory] = useState(""); // Filtre par catégorie
+  const [feeds, setFeeds] = useState([]);
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState("");
+  const [category, setCategory] = useState("");
 
-  // Fonction pour récupérer les flux RSS avec filtres
   const fetchFeeds = useCallback(() => {
     let query = `/feeds/?`;
 
@@ -22,14 +22,12 @@ const RSSFeeds = () => {
       .catch((error) =>
         console.error("Erreur lors de la récupération des flux :", error)
       );
-  }, [search, sort, category]); // Dépendances stabilisées
+  }, [search, sort, category]);
 
-  // Recharger les données dès que les filtres changent
   useEffect(() => {
     fetchFeeds();
   }, [fetchFeeds]);
 
-  // Gestion des filtres
   const handleFilterChange = (newFilters) => {
     if (newFilters.search !== undefined) setSearch(newFilters.search);
     if (newFilters.sort !== undefined) setSort(newFilters.sort);
@@ -37,30 +35,32 @@ const RSSFeeds = () => {
   };
 
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
       <h1>Flux RSS</h1>
 
-      {/* Composant de filtres */}
       <Filters
         onFilterChange={handleFilterChange}
         filters={{ search, sort, category }}
       />
 
-      {/* Liste des flux RSS */}
-      <ul>
+      <div style={styles.grid}>
         {feeds.length > 0 ? (
-          feeds.map((feed) => (
-            <li key={feed.id} style={{ marginBottom: "20px" }}>
-              <h3>{feed.title}</h3>
-              <p>{feed.description}</p>
-            </li>
-          ))
+          feeds.map((feed) => <CardFeed key={feed.id} feed={feed} />)
         ) : (
           <p>Aucun flux trouvé.</p>
         )}
-      </ul>
+      </div>
     </div>
   );
+};
+
+const styles = {
+  grid: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "20px",
+    justifyContent: "center",
+  },
 };
 
 export default RSSFeeds;
