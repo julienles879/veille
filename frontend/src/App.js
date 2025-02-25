@@ -20,7 +20,6 @@ const App = () => {
           <Route path="/rss-feeds" element={<RSSFeeds />} />
           <Route path="/add-rss-feed" element={<AddRSSFeed />} />
           <Route path="/favorites" element={<Favorites />} />
-          <Route path="/rss-feeds/:id" element={<FeedDetail />} />
           <Route path="/articles/:id" element={<ArticleDetail />} />
           <Route path="/feeds/categories" element={<Categories />} />
           <Route path="/feeds/:id" element={<FeedDetail />} />
