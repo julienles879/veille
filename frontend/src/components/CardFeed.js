@@ -1,15 +1,15 @@
-import React from "react";
+import { Link } from "react-router-dom";
 
 const CardFeed = ({ feed }) => {
-  const { title, description, link } = feed;
+  const { id, title, description } = feed;
 
   return (
     <div style={styles.card}>
       <h3>{title}</h3>
       <p>{description || "Pas de description disponible."}</p>
-      <a href={link} target="_blank" rel="noopener noreferrer" style={styles.link}>
-        Consulter le flux
-      </a>
+      <Link to={`/feeds/${id}`} style={styles.link}>
+        Voir les articles du flux ➔
+      </Link>
     </div>
   );
 };

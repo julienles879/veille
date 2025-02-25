@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import React from "react";
 
 const CardArticle = ({ article }) => {
@@ -43,9 +44,9 @@ const CardArticle = ({ article }) => {
         <p style={styles.date}>{formatDate(published_at)}</p>
         <p style={styles.category}>Catégorie : {category || "Non spécifiée"}</p>
         <p style={styles.feed}>Source : {feed_name}</p>
-        <a href={detail_link} style={styles.link}>
+        <Link to={`/articles/${article.id}`} style={styles.link}>
           Voir les détails ➔
-        </a>
+        </Link>
       </div>
     </div>
   );
