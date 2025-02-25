@@ -3,65 +3,66 @@
 import React, { useEffect, useState, useCallback } from "react";
 import api from "../api";
 import Filters from "../components/Filters";
+import CardFeed from "../components/CardFeed"; // ✅ Import du composant
 
 const RSSFeeds = () => {
   const [feeds, setFeeds] = useState([]);
-  const [filters, setFilters] = useState({ search: "" });
-  const [isLoading, setIsLoading] = useState(false); // ✅ Ajout d'un état pour éviter les re-renders infinis
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState("");
+  const [category, setCategory] = useState("");
 
-  // Fonction pour récupérer les flux RSS
-  const fetchFeeds = useCallback(async () => {
-    setIsLoading(true); // ✅ Évite les requêtes en boucle
+  const fetchFeeds = useCallback(() => {
+    let query = `/feeds/?`;
 
-    let query = `/feeds/`;
-    if (filters.search.trim() !== "") {
-      query = `/feeds/?search=${filters.search}`;
-    }
+    if (search) query += `search=${search}&`;
+    if (sort) query += `ordering=${sort}&`;
+    if (category) query += `category__name=${category}&`;
 
-    try {
-      const response = await api.get(query);
-      console.log("🔄 Flux RSS chargés :", response.data);
+    api
+      .get(query)
+      .then((response) => setFeeds(response.data))
+      .catch((error) =>
+        console.error("Erreur lors de la récupération des flux :", error)
+      );
+  }, [search, sort, category]);
 
-      if (Array.isArray(response.data)) {
-        setFeeds(response.data); // Cas où l'API retourne un tableau direct
-      } else if (response.data.results) {
-        setFeeds(response.data.results); // ✅ Cas classique de pagination Django Rest Framework
-      } else {
-        setFeeds([]); // Cas improbable : API sans résultat
-      }
-    } catch (error) {
-      console.error("❌ Erreur lors du chargement des flux RSS :", error);
-      setFeeds([]); // ✅ Sécurise l'affichage en cas d'erreur API
-    } finally {
-      setIsLoading(false);
-    }
-  }, [filters]); // ✅ Vérification des dépendances pour éviter les re-renders infinis
-
-  // Exécute `fetchFeeds` à chaque changement de `filters`
   useEffect(() => {
     fetchFeeds();
   }, [fetchFeeds]);
 
+  const handleFilterChange = (newFilters) => {
+    if (newFilters.search !== undefined) setSearch(newFilters.search);
+    if (newFilters.sort !== undefined) setSort(newFilters.sort);
+    if (newFilters.category !== undefined) setCategory(newFilters.category);
+  };
+
   return (
     <div style={{ padding: "20px" }}>
-      <h1>Gestion des Flux RSS</h1>
-      <Filters filters={filters} onFilterChange={setFilters} showCategory={false} showSort={false} />
+      <h1>Flux RSS</h1>
 
-      {isLoading && <p>Chargement des flux RSS...</p>} {/* ✅ Affichage d'un état de chargement */}
+      <Filters
+        onFilterChange={handleFilterChange}
+        filters={{ search, sort, category }}
+      />
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+      <div style={styles.grid}>
         {feeds.length > 0 ? (
-          feeds.map((feed) => (
-            <div key={feed.id}>
-              <h3>{feed.title}</h3>
-            </div>
-          ))
+          feeds.map((feed) => <CardFeed key={feed.id} feed={feed} />)
         ) : (
           <p>Aucun flux RSS trouvé.</p>
         )}
       </div>
     </div>
   );
+};
+
+const styles = {
+  grid: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "20px",
+    justifyContent: "center",
+  },
 };
 
 export default RSSFeeds;

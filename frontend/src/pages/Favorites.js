@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import api from "../api";
-import Filters from "../components/Filters";
+import Filters from "../components/Filters"; // Import du composant de filtres
+import CardArticle from "../components/CardArticle"; // ✅ Import du composant CardArticle
 
 const Favorites = () => {
   const [favorites, setFavorites] = useState([]); // Liste complète des favoris
@@ -94,49 +95,26 @@ const Favorites = () => {
       {/* Affichage des erreurs */}
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {/* Liste des articles favoris filtrés */}
-      {filteredFavorites.length > 0 ? (
-        filteredFavorites.map((favorite) => (
-          <div key={favorite.id} style={styles.articleCard}>
-            <h3>{favorite.title}</h3>
-            <p>{favorite.content}</p>
-            <p>
-              <strong>Catégorie :</strong>{" "}
-              {favorite.category || "Non catégorisé"}
-            </p>
-            <a href={favorite.link} target="_blank" rel="noopener noreferrer">
-              Lire plus
-            </a>
-            {/* Icône pour ajouter/supprimer des favoris */}
-            <button
-              onClick={() =>
-                toggleFavorite(favorite.id, favorite.is_favorite)
-              }
-              style={{
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                fontSize: "24px",
-              }}
-            >
-              {favorite.is_favorite ? "❤️" : "🤍"}
-            </button>
-          </div>
-        ))
-      ) : (
-        <p>Aucun article favori trouvé.</p>
-      )}
+      {/* Liste des articles favoris filtrés sous forme de cartes */}
+      <div style={styles.grid}>
+        {filteredFavorites.length > 0 ? (
+          filteredFavorites.map((favorite) => (
+            <CardArticle key={favorite.id} article={favorite} />
+          ))
+        ) : (
+          <p>Aucun article favori trouvé.</p>
+        )}
+      </div>
     </div>
   );
 };
 
-// Styles
 const styles = {
-  articleCard: {
-    marginBottom: "20px",
-    padding: "15px",
-    border: "1px solid #ddd",
-    borderRadius: "4px",
+  grid: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "20px",
+    justifyContent: "center",
   },
 };
 

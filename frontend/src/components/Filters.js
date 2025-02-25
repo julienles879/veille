@@ -54,20 +54,17 @@ const Filters = ({
 
   // Mettre à jour les filtres à chaque changement
   useEffect(() => {
-    console.log("🔍 Filtres envoyés :", {
-      search,
-      category: selectedCategory,
-      feed: selectedFeed,
-      sort,
-    });
+    // Utilise setTimeout pour éviter les boucles infinies
+    const timer = setTimeout(() => {
+      onFilterChange({
+        search,
+        category: selectedCategory,
+        ...(showSort && { sort }),
+      });
+    }, 0);
 
-    onFilterChange({
-      search,
-      ...(showCategory && { category: selectedCategory }),
-      ...(showFeed && { feed: selectedFeed }),
-      ...(showSort && { sort }),
-    });
-  }, [search, selectedCategory, selectedFeed, sort, onFilterChange, showCategory, showFeed, showSort]);
+    return () => clearTimeout(timer); // Nettoie le timer lors du démontage
+  }, [search, selectedCategory, sort, showSort]);
 
   return (
     <div style={styles.filtersContainer}>

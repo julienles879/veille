@@ -1,100 +1,77 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Link, useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
 import api from "../api";
-import Filters from "../components/Filters";
+import CardArticle from "../components/CardArticle";
 
 const FeedDetail = () => {
   const { id } = useParams();
+  const [feed, setFeed] = useState(null);
   const [articles, setArticles] = useState([]);
-  const [filters, setFilters] = useState({ search: "" });
+  const [loading, setLoading] = useState(true);
 
-  const fetchArticles = useCallback(() => {
-    let query = `/feeds/feeds/${id}/articles/`;
-    if (filters.search.trim() !== "") {
-      query += `?search=${filters.search}`;
-    }
-
-    api.get(query)
-      .then((response) => setArticles(response.data.results || []))
-      .catch((error) => console.error("Erreur lors de la récupération des articles :", error));
-  }, [id, filters]);
- 
   useEffect(() => {
-    fetchArticles();
-  }, [fetchArticles]);
+    // Récupérer les détails du flux
+    api.get(`/feeds/${id}/`)
+      .then((response) => setFeed(response.data))
+      .catch((error) => console.error("Erreur lors du chargement du flux :", error));
+
+    // Récupérer les articles liés à ce flux
+    api.get(`/feeds/${id}/articles/`)
+      .then((response) => setArticles(response.data))
+      .catch((error) => console.error("Erreur lors du chargement des articles :", error))
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  if (loading) return <p>Chargement...</p>;
+  if (!feed) return <p>Flux non trouvé.</p>;
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1>Articles du Flux</h1>
-      <Filters filters={filters} onFilterChange={setFilters} showCategory={false} showSort={false} />
+      <div style={styles.feedDetails}>
+        <h1>{feed.title}</h1>
+        <p>{feed.description || "Aucune description disponible."}</p>
+        <a href={feed.link} target="_blank" rel="noopener noreferrer" style={styles.link}>
+          Consulter le flux original ➔
+        </a>
+      </div>
 
-      <div style={styles.articleGrid}>
-        {articles.map((article) => (
-          <div key={article.id} style={styles.articleCard}>
-            <Link to={`/article/${article.id}`} style={styles.articleTitle}>
-              {article.title}
-            </Link>
-          </div>
-        ))}
+      <h2 style={{ marginTop: "30px" }}>Articles du flux</h2>
+      <div style={styles.grid}>
+        {articles.length > 0 ? (
+          articles.map((article) => (
+            <CardArticle key={article.id} article={article} />
+          ))
+        ) : (
+          <p>Aucun article trouvé pour ce flux.</p>
+        )}
+      </div>
+
+      <div style={{ marginTop: "20px" }}>
+        <Link to="/rss-feeds" style={styles.link}>
+          ⬅ Retour aux flux
+        </Link>
       </div>
     </div>
   );
 };
 
-// Styles inchangés
 const styles = {
-  articleList: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-    gap: "20px",
-  },
-  articleCard: {
-    padding: "15px",
+  feedDetails: {
     border: "1px solid #ddd",
     borderRadius: "8px",
-    backgroundColor: "#f9f9f9",
-    boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
-    position: "relative",
+    padding: "16px",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+    marginBottom: "20px",
   },
-  articleTitle: {
-    fontSize: "18px",
-    fontWeight: "bold",
-    textDecoration: "none",
-    color: "#000",
-    display: "block",
-    marginBottom: "10px",
+  grid: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "20px",
+    justifyContent: "center",
   },
-  feedName: {
-    fontSize: "14px",
-    color: "#007BFF",
-    marginBottom: "10px",
-  },
-  feedLink: {
+  link: {
     textDecoration: "none",
     color: "#007BFF",
-  },
-  categoryLink: {
-    textDecoration: "none",
-    color: "#28a745",
-  },
-  select: {
-    padding: "8px",
-    border: "1px solid #ccc",
-    borderRadius: "4px",
-    marginLeft: "10px",
-  },
-  favoriteButton: {
-    background: "none",
-    border: "none",
-    cursor: "pointer",
-    fontSize: "20px",
-    position: "absolute",
-    top: "10px",
-    right: "10px",
-  },
-  readMore: {
-    color: "#007BFF",
-    textDecoration: "none",
     fontWeight: "bold",
   },
 };

@@ -1,33 +1,33 @@
-import React, { useEffect, useState } from 'react';
-import api from '../api';
+import React, { useEffect, useState } from "react";
+import CardArticle from "./CardArticle"; // Ajuste le chemin si besoin
 
 const ArticlesList = () => {
-    const [articles, setArticles] = useState([]);
+  const [articles, setArticles] = useState([]);
 
-    useEffect(() => {
-        api.get('/articles/')  // Appel à l'API Django REST
-            .then((response) => {
-                setArticles(response.data);
-            })
-            .catch((error) => {
-                console.error('Erreur lors de la récupération des articles :', error);
-            });
-    }, []);
+  // Charger les articles depuis l'API
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/articles/")
+      .then((res) => res.json())
+      .then((data) => setArticles(data))
+      .catch((err) => console.error("Erreur lors du chargement des articles :", err));
+  }, []);
 
-    return (
-        <div>
-            <h1>Liste des Articles</h1>
-            <ul>
-                {articles.map((article) => (
-                    <li key={article.id}>
-                        <h3>{article.title}</h3>
-                        <p>{article.content}</p>
-                        <a href={article.link} target="_blank" rel="noopener noreferrer">Lire plus</a>
-                    </li>
-                ))}
-            </ul>
-        </div>
-    );
+  return (
+    <div style={styles.grid}>
+      {articles.map((article) => (
+        <CardArticle key={article.id} article={article} />
+      ))}
+    </div>
+  );
+};
+
+const styles = {
+  grid: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "20px",
+    justifyContent: "center",
+  },
 };
 
 export default ArticlesList;

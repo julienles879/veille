@@ -3,72 +3,75 @@
 import React, { useState, useEffect, useCallback } from "react";
 import api from "../api";
 import Filters from "../components/Filters";
+import CardCategories from "../components/CardCategorie"; // ✅ Import du composant
 
 const Categories = () => {
+  const [categories, setCategories] = useState([]);
   const [filteredCategories, setFilteredCategories] = useState([]);
-  const [filters, setFilters] = useState({ search: "" });
+  const [error, setError] = useState(null);
+  const [filters, setFilters] = useState({
+    search: "",
+    Categories: "",
+  });
 
-  // Fonction pour récupérer les catégories avec gestion de l'API
-  const fetchCategories = useCallback(async () => {
+  const fetchCategories = useCallback(() => {
     let query = `/feeds/categories/`;
     if (filters.search.trim() !== "") {
       query = `/feeds/categories/search/?search=${filters.search}`;
     }
 
-    try {
-      const response = await api.get(query);
-      console.log("🔄 Catégories chargées :", response.data);
-
-      if (Array.isArray(response.data)) {
-        setFilteredCategories(response.data); // Cas où l'API retourne un tableau direct
-      } else if (response.data.results) {
-        setFilteredCategories(response.data.results); // ✅ Cas Django Rest Framework (pagination)
-      } else {
-        setFilteredCategories([]); // Cas improbable : API sans résultat
-      }
-    } catch (error) {
-      console.error("❌ Erreur lors du chargement des catégories :", error);
-      setFilteredCategories([]);
-    }
-  }, [filters]);
+    api
+      .get(query)
+      .then((response) => {
+        setCategories(response.data);
+        setFilteredCategories(response.data);
+        setError(null);
+      })
+      .catch(() => setError("Impossible de charger les catégories."));
+  }, [filters.search]);
 
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
 
+  const handleFilterChange = useCallback((newFilters) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      ...newFilters,
+    }));
+  }, []);
+
   return (
     <div style={{ padding: "20px" }}>
-      <h1>Catégories et Flux RSS</h1>
-      <Filters filters={filters} onFilterChange={setFilters} showCategory={false} showSort={false} />
+      <h1>Liste des Catégories</h1>
 
-      {filteredCategories.length === 0 ? (
-        <p>Aucune catégorie trouvée.</p>
-      ) : (
-        <div style={styles.categoryList}>
-          {filteredCategories.map((category) => (
-            <div key={category.id} style={styles.categoryCard}>
-              <h3>{category.name}</h3>
-            </div>
-          ))}
-        </div>
-      )}
+      <Filters
+        onFilterChange={handleFilterChange}
+        filters={filters}
+        showSort={false}
+      />
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      <div style={styles.grid}>
+        {filteredCategories.length > 0 ? (
+          filteredCategories.map((Categories) => (
+            <CardCategories key={Categories.id} Categories={Categories} />
+          ))
+        ) : (
+          <p>Aucune catégorie trouvée.</p>
+        )}
+      </div>
     </div>
   );
 };
 
-// Styles inchangés
 const styles = {
-  categoryList: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+  grid: {
+    display: "flex",
+    flexWrap: "wrap",
     gap: "20px",
-  },
-  categoryCard: {
-    padding: "15px",
-    border: "1px solid #ddd",
-    borderRadius: "8px",
-    backgroundColor: "#f9f9f9",
-    boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+    justifyContent: "center",
   },
 };
 

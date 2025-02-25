@@ -6,6 +6,8 @@ import RSSFeeds from "./pages/RSSFeeds";
 import Favorites from "./pages/Favorites";
 import FeedDetail from "./pages/FeedDetail";
 import Categories from "./pages/Categories";
+import ArticleDetail from "./pages/ArticleDetail";
+
 
 
 const App = () => {
@@ -17,6 +19,7 @@ const App = () => {
           <Route path="/rss-feeds" element={<RSSFeeds />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/rss-feeds/:id" element={<FeedDetail />} />
+          <Route path="/articles/:id" element={<ArticleDetail />} />
           <Route path="/feeds/categories" element={<Categories />} />
           <Route path="/feeds/:id" element={<FeedDetail />} />
         </Routes>
