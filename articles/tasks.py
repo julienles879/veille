@@ -1,8 +1,35 @@
 import feedparser
-from datetime import datetime
+from datetime import datetime, timedelta
+from django.utils.timezone import now
 from background_task import background
-from .models import RSSFeedEntry
-from feeds.models import RSSFeed
+from .models import *
+
+@background(schedule=3600)  # 🔥 Exécution toutes les heures
+def delete_old_articles():
+    """
+    Supprime les articles publiés il y a plus d'une heure, sauf ceux qui sont en favoris
+    ou qui sont encore affichés par un utilisateur.
+    """
+    cutoff_time = now() - timedelta(hours=1)  # 🔥 Articles plus vieux d'une heure
+
+    # Récupère les IDs des articles favoris pour les exclure
+    favorite_article_ids = Favorite.objects.values_list('article_id', flat=True)
+
+    # Articles encore affichés par un utilisateur
+    displayed_article_ids = RSSFeedEntry.objects.filter(last_viewed_at__gte=cutoff_time).values_list('id', flat=True)
+
+    # Supprime les articles anciens qui ne sont ni en favoris ni affichés
+    old_articles = RSSFeedEntry.objects.filter(
+        published_at__lt=cutoff_time
+    ).exclude(id__in=favorite_article_ids).exclude(id__in=displayed_article_ids)
+
+    deleted_count, _ = old_articles.delete()
+    print(f"🗑️ {deleted_count} articles supprimés (publiés avant {cutoff_time}, hors favoris et affichés)")
+
+    # Replanifier la tâche toutes les heures
+    delete_old_articles(repeat=3600)
+
+
 
 @background(schedule=10)
 def fetch_articles_for_feeds():

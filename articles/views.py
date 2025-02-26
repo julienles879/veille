@@ -1,11 +1,28 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_200_OK, HTTP_404_NOT_FOUND
 from rest_framework.filters import OrderingFilter, SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from django.utils.timezone import now
 from .models import *
 from .serializers import *
+
+
+class UpdateLastViewedView(APIView):
+    """
+    Vue pour mettre à jour la dernière consultation d'un article.
+    """
+    def post(self, request, *args, **kwargs):
+        article_id = request.data.get("article_id")
+        if not article_id:
+            return Response({"error": "Article ID is required."}, status=HTTP_404_NOT_FOUND)
+        try:
+            article = RSSFeedEntry.objects.get(id=article_id)
+            article.update_last_viewed()  # ✅ Met à jour last_viewed_at
+            return Response({"message": "Dernière consultation mise à jour."}, status=HTTP_200_OK)
+        except RSSFeedEntry.DoesNotExist:
+            return Response({"error": "Article not found."}, status=HTTP_404_NOT_FOUND)
 
 
 class FavoriteListView(APIView):

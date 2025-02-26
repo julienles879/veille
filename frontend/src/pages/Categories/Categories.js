@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import api from "../api";
-import CardCategories from "../components/CardCategorie"; // ✅ Import du composant
+import api from "../../api";
+import CardCategories from "../../components/CardCategorie/CardCategorie"; // ✅ Import du composant
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);

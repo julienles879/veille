@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
-import api from "../api";
-import CardFeed from "../components/CardFeed"; // ✅ Import du composant
+import api from "../../api";
+import CardFeed from "../../components/CardFeed/CardFeed"; // ✅ Import du composant
 
 const RSSFeeds = () => {
   const [feeds, setFeeds] = useState([]);

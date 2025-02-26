@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import CardArticle from "./CardArticle"; // Ajuste le chemin si besoin
+import CardArticle from "../CadArticle/CardArticle";
+import styles from "./ArticlesList.module.css"; // ✅ Import du fichier CSS modulaire
 
 const ArticlesList = () => {
   const [articles, setArticles] = useState([]);
 
-  // Charger les articles depuis l'API
   useEffect(() => {
     fetch("http://127.0.0.1:8000/articles/")
       .then((res) => res.json())
@@ -13,21 +13,12 @@ const ArticlesList = () => {
   }, []);
 
   return (
-    <div style={styles.grid}>
+    <div className={styles.articlesGrid}>
       {articles.map((article) => (
         <CardArticle key={article.id} article={article} />
       ))}
     </div>
   );
-};
-
-const styles = {
-  grid: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "20px",
-    justifyContent: "center",
-  },
 };
 
 export default ArticlesList;

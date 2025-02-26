@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import api from "../api";
-import CardArticle from "../components/CardArticle"; // ✅ Import du composant CardArticle
+import api from "../../api";
+import CardArticle from "../../components/CardArticle/CardArticle"; // ✅ Import du composant CardArticle
 
 const Favorites = () => {
   const [favorites, setFavorites] = useState([]); // Liste des favoris

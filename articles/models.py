@@ -3,6 +3,10 @@ from django.conf import settings
 from feeds.models import RSSFeed
 
 
+from django.db import models
+from django.utils.timezone import now
+from feeds.models import RSSFeed
+
 class RSSFeedEntry(models.Model):
     """
     Modèle représentant un article extrait d'un flux RSS.
@@ -17,9 +21,16 @@ class RSSFeedEntry(models.Model):
     link = models.URLField(help_text="Lien vers l'article.")
     content = models.TextField(null=True, blank=True, help_text="Contenu de l'article.")
     published_at = models.DateTimeField(help_text="Date de publication de l'article.")
+    last_viewed_at = models.DateTimeField(null=True, blank=True, help_text="Dernière consultation de l'article.")  # ✅ Ajouté
+
+    def update_last_viewed(self):
+        """Met à jour la date de dernière consultation"""
+        self.last_viewed_at = now()
+        self.save()
 
     def __str__(self):
         return self.title
+
     
 class Favorite(models.Model):
     """

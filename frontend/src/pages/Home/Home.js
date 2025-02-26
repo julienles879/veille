@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import api from "../api";
-import Navbar from "../components/navbar";
-import CardArticle from "../components/CardArticle";
+import api from "../../api";
+import Navbar from "../../components/navbar/navbar";
+import CardArticle from "../../components/CardArticle/CardArticle";
 
 const Home = () => {
   const [articles, setArticles] = useState([]);

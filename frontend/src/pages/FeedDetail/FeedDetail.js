@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import api from "../api";
-import CardArticle from "../components/CardArticle";
+import api from "../../api";
+import CardArticle from "../../components/CardArticle/CardArticle";
 
 const FeedDetail = () => {
   const { id } = useParams();

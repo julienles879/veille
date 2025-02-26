@@ -1,12 +1,12 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
-import RSSFeeds from "./pages/RSSFeeds";
-import AddRSSFeed from "./pages/AddRSSFeed";
-import Favorites from "./pages/Favorites";
-import FeedDetail from "./pages/FeedDetail";
-import Categories from "./pages/Categories";
-import ArticleDetail from "./pages/ArticleDetail";
+import Home from "./pages/Home/Home";
+import RSSFeeds from "./pages/RSSFeeds/RSSFeeds";
+import AddRSSFeed from "./pages/AddRSSFeed/AddRSSFeed";
+import Favorites from "./pages/Favorites/Favorites";
+import FeedDetail from "./pages/FeedDetail/FeedDetail";
+import Categories from "./pages/Categories/Categories";
+import ArticleDetail from "./pages/ArticleDetail/ArticleDetail";
 
 
 
