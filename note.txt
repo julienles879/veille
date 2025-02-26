@@ -7,3 +7,6 @@ recharger en continuer. Peut être du à l'url, essayer de retirer le choix du n
 Affichage du nombre d'article OK (avec le scroll)
 retrait du fichier filters et des mention de filters partout mais du coup la barre de recherche ne fonctionne pas 
 de plus, les gestions des catégories / flux / favoris et ajout flux a refaire coté front
+
+Barre de recherche et affichage des catégorie OK
+Mais l'affichage des catégorie de fonctionne pas 

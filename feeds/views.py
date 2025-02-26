@@ -83,12 +83,16 @@ class RecentArticlesView(generics.ListAPIView):
     pagination_class = ArticlePagination
 
     def get_queryset(self):
-        category = self.request.query_params.get('category', None)
-        queryset = RSSFeedEntry.objects.all().order_by('-published_at')
-        if category:
-            queryset = queryset.filter(feed__category__name__icontains=category)
-        return queryset
+        category_name = self.request.query_params.get('category__name', None)  # 🔥 Bien récupérer le bon paramètre
+        logger.debug(f"🟢 Catégorie reçue dans la requête : {category_name}")
 
+        queryset = RSSFeedEntry.objects.all().order_by('-published_at')
+
+        if category_name:
+            queryset = queryset.filter(feed__category__name__iexact=category_name)  # ✅ Assure un filtrage exact
+            logger.debug(f"✅ {queryset.count()} articles trouvés pour la catégorie '{category_name}'")
+
+        return queryset
 
 
 

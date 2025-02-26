@@ -9,26 +9,43 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [isSearching, setIsSearching] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const fetchAbortRef = useRef(null);
   const isFetchingRef = useRef(false);
 
   // ✅ Met à jour les articles après une recherche depuis la Navbar
   const handleSearchResults = (results) => {
+    console.log("🔍 Recherche effectuée, résultats reçus:", results);
     setIsSearching(true);
     setPage(1);
     setHasMore(false);
     setArticles(Array.isArray(results.results) ? results.results : []);
   };
 
-  // 🔄 Récupère les articles avec pagination
+  // ✅ Met à jour les articles après la sélection d'une catégorie
+  const handleCategorySelect = (categoryName) => {
+    console.log(`📂 Catégorie sélectionnée (ID): ${categoryName}`);
+    setSelectedCategory(categoryName);
+    setPage(1);
+    setHasMore(true);
+    setIsSearching(false);
+    setArticles([]);
+  };
+
+  // 🔄 Récupère les articles avec pagination ou par catégorie
   const fetchArticles = useCallback(async () => {
     if (isFetchingRef.current || !hasMore || isSearching) return;
 
     isFetchingRef.current = true;
     setIsLoading(true);
-    console.log("Fetching articles for page:", page);
-
     let query = `/feeds/articles/recent/?limit=30&page=${page}`;
+    if (selectedCategory) {
+      query += `&category__name=${selectedCategory}`; // 🔥 Utiliser category__name et pas category=id
+      console.log("🔎 Catégorie envoyée au back :", selectedCategory); 
+    }
+    
+
+    console.log(`📡 Requête API envoyée: ${query}`);
 
     try {
       if (fetchAbortRef.current) {
@@ -37,38 +54,29 @@ const Home = () => {
       fetchAbortRef.current = new AbortController();
 
       const response = await api.get(query, { signal: fetchAbortRef.current.signal });
-      console.log("Réponse API :", response.data);
+      console.log("📩 Réponse API reçue:", response.data);
 
-      const articlesData = response.data.results || (Array.isArray(response.data) ? response.data : []);
+      const articlesData = response.data.results || [];
+      console.log("📋 Articles récupérés:", articlesData);
 
-      setArticles((prevArticles) => {
-        if (page === 1) {
-          return articlesData;
-        }
-        const newArticles = [...prevArticles, ...articlesData];
-        return newArticles.filter(
-          (article, index, self) => index === self.findIndex((a) => a.id === article.id)
-        );
-      });
+      setArticles((prevArticles) => (page === 1 ? articlesData : [...prevArticles, ...articlesData]));
 
       if (!response.data.next || articlesData.length < 30) {
         setHasMore(false);
       }
     } catch (error) {
-      if (error.name !== "AbortError") {
-        console.error("Erreur lors de la récupération des articles :", error);
-      }
+      console.error("❌ Erreur lors de la récupération des articles:", error);
     } finally {
       setIsLoading(false);
       isFetchingRef.current = false;
     }
-  }, [page, hasMore, isSearching]);
+  }, [page, hasMore, isSearching, selectedCategory]);
 
   useEffect(() => {
     if (!isSearching) {
       fetchArticles();
     }
-  }, [fetchArticles, page]);
+  }, [fetchArticles, page, selectedCategory]);
 
   // 🔄 Gère le scroll infini
   useEffect(() => {
@@ -84,7 +92,7 @@ const Home = () => {
           hasMore &&
           !isFetchingRef.current
         ) {
-          console.log("Loading next page...");
+          console.log("🔄 Chargement de la page suivante...");
           setPage((prevPage) => prevPage + 1);
         }
         timeout = null;
@@ -100,18 +108,18 @@ const Home = () => {
 
   return (
     <div>
-      <Navbar onSearchResults={handleSearchResults} />
+      <Navbar onSearchResults={handleSearchResults} onCategorySelect={handleCategorySelect} />
       <div style={{ padding: "20px" }}>
-        <h1>Articles Récents</h1>
+        <h1>Articles {selectedCategory ? `de la catégorie ${selectedCategory}` : "Récents"}</h1>
         <div style={styles.grid}>
           {articles.length > 0 ? (
             articles.map((article) => <CardArticle key={article.id} article={article} />)
           ) : (
-            <p>Aucun article trouvé.</p>
+            <p>⚠️ Aucun article trouvé.</p>
           )}
         </div>
-        {isLoading && <p>Chargement...</p>}
-        {!hasMore && <p>Pas d'autres articles à charger.</p>}
+        {isLoading && <p>⏳ Chargement...</p>}
+        {!hasMore && <p>✅ Pas d'autres articles à charger.</p>}
       </div>
     </div>
   );
