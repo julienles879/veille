@@ -1,0 +1,139 @@
+/* 🌙 Fond semi-transparent qui bloque l'interaction avec Home */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6); /* Fond assombri */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    overflow: hidden; /* ❌ Bloque le scroll de la page Home */
+}
+
+/* 📦 Conteneur de la modale sous forme de carte */
+.modal {
+    background: #2a2a2a;
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    width: 45%;
+    max-width: 600px;
+    max-height: 80vh;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* ✅ Correction pour permettre le scroll uniquement sur la card */
+    z-index: 1001; /* ✅ Plus haut que l'overlay */
+}
+
+/* 🎠 Scroll interne dans la modale */
+.modalContent {
+    overflow-y: auto; /* ✅ Active le scroll si besoin */
+    max-height: 65vh; /* 🔥 La carte devient scrollable */
+    padding: 10px;
+}
+
+/* ❌ Bouton de fermeture */
+.closeButton {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 22px;
+    color: white;
+    cursor: pointer;
+}
+
+/* 🖼️ Image */
+.imageContainer {
+    width: 100%;
+    margin: 10px 0;
+}
+
+.image {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+/* 📰 Titre */
+.articleTitle {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* 🗓️ Date */
+.articleDate {
+    font-size: 14px;
+    color: #bbb;
+    margin-bottom: 8px;
+}
+
+/* 📂 Catégorie & Source */
+.articleCategory, .articleFeed {
+    font-size: 14px;
+    color: #ddd;
+    margin-bottom: 4px;
+}
+
+/* 📝 Contenu de l'article */
+.articleDescription {
+    font-size: 15px;
+    color: #ddd;
+    text-align: left;
+    line-height: 1.6;
+    padding: 10px;
+}
+
+/* 🔗 Lien */
+.articleLink {
+    display: block;
+    margin-top: 10px;
+    color: #61dafb;
+    font-weight: bold;
+}
+
+.articleLink:hover {
+    text-decoration: underline;
+}
+
+/* 🔄 Animations */
+/* 🌙 Apparition en fondu */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* ⬆️ Effet de montée */
+@keyframes slideIn {
+    from {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* 📱 Responsive Design */
+@media (max-width: 768px) {
+    .modal {
+        width: 90%;
+        max-height: 90vh;
+    }
+
+    .modalContent {
+        max-height: 75vh;
+    }
+}

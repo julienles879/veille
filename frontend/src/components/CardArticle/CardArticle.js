@@ -1,11 +1,9 @@
-import { useNavigate } from "react-router-dom";
 import React from "react";
 import api from "../../api";
-import styles from "./CardArticle.module.css"; // ✅ Import du fichier CSS modulaire
+import styles from "./CardArticle.module.css"; // ✅ Import du CSS
 
-const CardArticle = ({ article }) => {
+const CardArticle = ({ article, onArticleSelect }) => {
   const { id, title, published_at, image, category, feed_title } = article;
-  const navigate = useNavigate();
 
   const formatDate = (dateString) => {
     const options = { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" };
@@ -14,18 +12,19 @@ const CardArticle = ({ article }) => {
 
   const handleArticleClick = async () => {
     console.log(`👀 Consultation de l'article : ${title}`);
-  
+
     try {
       await api.post(`/articles/${id}/update_last_viewed/`, { article_id: id });
       console.log("✅ Dernière consultation mise à jour !");
     } catch (error) {
       console.error("❌ Erreur lors de la mise à jour de la consultation :", error);
     }
-  
-    // 🚀 Rediriger vers la page des détails de l'article
-    navigate(`/articles/${id}`);
+
+    // 🚀 Afficher la modale avec l'article sélectionné
+    if (onArticleSelect) {
+      onArticleSelect(article);
+    }
   };
-  
 
   return (
     <div className={styles.card} onClick={handleArticleClick}>

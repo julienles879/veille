@@ -2,7 +2,8 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import api from "../../api";
 import Navbar from "../../components/navbar/navbar";
 import CardArticle from "../../components/CardArticle/CardArticle";
-import styles from "./Home.module.css"; // ✅ Import du CSS
+import ArticleModal from "../../components/ArticleModal/ArticleModal"; // ✅ Import du composant modale
+import styles from "./Home.module.css"; 
 
 const Home = () => {
   const [articles, setArticles] = useState([]);
@@ -11,11 +12,11 @@ const Home = () => {
   const [page, setPage] = useState(1);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedArticle, setSelectedArticle] = useState(null); // ✅ Stocker l'article sélectionné
   const fetchAbortRef = useRef(null);
   const isFetchingRef = useRef(false);
 
   const handleSearchResults = (results) => {
-    console.log("🔍 Recherche effectuée, résultats reçus:", results);
     setIsSearching(true);
     setPage(1);
     setHasMore(false);
@@ -23,7 +24,6 @@ const Home = () => {
   };
 
   const handleCategorySelect = (categoryName) => {
-    console.log(`📂 Catégorie sélectionnée (ID): ${categoryName}`);
     setSelectedCategory(categoryName);
     setPage(1);
     setHasMore(true);
@@ -39,10 +39,7 @@ const Home = () => {
     let query = `/feeds/articles/recent/?limit=30&page=${page}`;
     if (selectedCategory) {
       query += `&category__name=${selectedCategory}`;
-      console.log("🔎 Catégorie envoyée au back :", selectedCategory);
     }
-
-    console.log(`📡 Requête API envoyée: ${query}`);
 
     try {
       if (fetchAbortRef.current) {
@@ -51,10 +48,7 @@ const Home = () => {
       fetchAbortRef.current = new AbortController();
 
       const response = await api.get(query, { signal: fetchAbortRef.current.signal });
-      console.log("📩 Réponse API reçue:", response.data);
-
       const articlesData = response.data.results || [];
-      console.log("📋 Articles récupérés:", articlesData);
 
       setArticles((prevArticles) => (page === 1 ? articlesData : [...prevArticles, ...articlesData]));
 
@@ -75,50 +69,41 @@ const Home = () => {
     }
   }, [fetchArticles, page, selectedCategory]);
 
-  useEffect(() => {
-    let timeout = null;
-    const handleScroll = () => {
-      if (timeout) return;
+  // ✅ Fonction pour ouvrir la modale avec l'article sélectionné
+  const handleArticleSelect = (article) => {
+    setSelectedArticle(article);
+  };
 
-      timeout = setTimeout(() => {
-        if (
-          window.innerHeight + document.documentElement.scrollTop >=
-          document.documentElement.offsetHeight - 200 &&
-          !isLoading &&
-          hasMore &&
-          !isFetchingRef.current
-        ) {
-          console.log("🔄 Chargement de la page suivante...");
-          setPage((prevPage) => prevPage + 1);
-        }
-        timeout = null;
-      }, 300);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      if (timeout) clearTimeout(timeout);
-    };
-  }, [isLoading, hasMore]);
+  // ✅ Fonction pour fermer la modale
+  const handleCloseModal = () => {
+    setSelectedArticle(null);
+  };
 
   return (
     <div>
       <Navbar onSearchResults={handleSearchResults} onCategorySelect={handleCategorySelect} />
+      
       <div className={styles.homeContainer}>
         <h1 className={styles.pageTitle}>
           Articles {selectedCategory ? `de la catégorie ${selectedCategory}` : "Récents"}
         </h1>
+        
         <div className={styles.articlesGrid}>
           {articles.length > 0 ? (
-            articles.map((article) => <CardArticle key={article.id} article={article} />)
+            articles.map((article) => (
+              <CardArticle key={article.id} article={article} onArticleSelect={handleArticleSelect} />
+            ))
           ) : (
             <p className={styles.loadingMessage}>⚠️ Aucun article trouvé.</p>
           )}
         </div>
+        
         {isLoading && <p className={styles.loadingMessage}>⏳ Chargement...</p>}
         {!hasMore && <p className={styles.endMessage}>✅ Pas d'autres articles à charger.</p>}
       </div>
+
+      {/* ✅ Affichage de la modale si un article est sélectionné */}
+      {selectedArticle && <ArticleModal article={selectedArticle} onClose={handleCloseModal} />}
     </div>
   );
 };
