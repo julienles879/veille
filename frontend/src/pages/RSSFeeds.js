@@ -1,48 +1,32 @@
 import React, { useEffect, useState, useCallback } from "react";
 import api from "../api";
-import Filters from "../components/Filters";
 import CardFeed from "../components/CardFeed"; // ✅ Import du composant
 
 const RSSFeeds = () => {
   const [feeds, setFeeds] = useState([]);
-  const [search, setSearch] = useState("");
-  const [sort, setSort] = useState("");
-  const [category, setCategory] = useState("");
+  const [error, setError] = useState(null);
 
   const fetchFeeds = useCallback(() => {
-    let query = `/feeds/?`;
-
-    if (search) query += `search=${search}&`;
-    if (sort) query += `ordering=${sort}&`;
-    if (category) query += `category__name=${category}&`;
-
     api
-      .get(query)
-      .then((response) => setFeeds(response.data))
-      .catch((error) =>
-        console.error("Erreur lors de la récupération des flux :", error)
-      );
-  }, [search, sort, category]);
+      .get("/feeds/")
+      .then((response) => {
+        setFeeds(response.data);
+        setError(null);
+      })
+      .catch((error) => {
+        console.error("Erreur lors de la récupération des flux :", error);
+        setError("Impossible de charger les flux RSS.");
+      });
+  }, []);
 
   useEffect(() => {
     fetchFeeds();
   }, [fetchFeeds]);
 
-  const handleFilterChange = (newFilters) => {
-    if (newFilters.search !== undefined) setSearch(newFilters.search);
-    if (newFilters.sort !== undefined) setSort(newFilters.sort);
-    if (newFilters.category !== undefined) setCategory(newFilters.category);
-  };
-
   return (
     <div style={{ padding: "20px" }}>
       <h1>Flux RSS</h1>
-
-      <Filters
-        onFilterChange={handleFilterChange}
-        filters={{ search, sort, category }}
-      />
-
+      {error && <p style={{ color: "red" }}>{error}</p>}
       <div style={styles.grid}>
         {feeds.length > 0 ? (
           feeds.map((feed) => <CardFeed key={feed.id} feed={feed} />)

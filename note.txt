@@ -2,3 +2,8 @@ en train de faire le nouveau ui
 
 changement du nombre d'article sur la page pour passer à un scroll "infini" mais problème de back la page est 
 recharger en continuer. Peut être du à l'url, essayer de retirer le choix du nombre d'article affiché
+
+
+Affichage du nombre d'article OK (avec le scroll)
+retrait du fichier filters et des mention de filters partout mais du coup la barre de recherche ne fonctionne pas 
+de plus, les gestions des catégories / flux / favoris et ajout flux a refaire coté front

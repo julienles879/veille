@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FiSettings, FiMoreHorizontal, FiSearch } from "react-icons/fi";
 import "../App.css";
@@ -13,20 +13,19 @@ const Navbar = ({ onSearchResults }) => {
   useEffect(() => {
     api.get("/feeds/categories/")
       .then((response) => {
-        if (!Array.isArray(response.data)) {
+        if (!Array.isArray(response.data.results)) {
           console.error("Données de catégories invalides :", response.data);
           return;
         }
-        setCategories(response.data);
+        setCategories(response.data.results);
         const maxVisible = 6;
-        setVisibleCategories(response.data.slice(0, maxVisible));
-        setOverflowCategories(response.data.slice(maxVisible));
+        setVisibleCategories(response.data.results.slice(0, maxVisible));
+        setOverflowCategories(response.data.results.slice(maxVisible));
       })
       .catch((error) => console.error("Erreur lors du chargement des catégories :", error));
   }, []);
-  
 
-  // ✅ Recherche en temps réel directement depuis la Navbar
+  // ✅ Recherche en temps réel
   const handleSearch = (query) => {
     setSearchQuery(query);
 
@@ -38,11 +37,11 @@ const Navbar = ({ onSearchResults }) => {
     if (query.trim()) {
       api.get(`/feeds/articles/search/?search=${query}`)
         .then((response) => {
-          onSearchResults(response.data); // ✅ Met à jour les articles via la prop
+          onSearchResults(response.data); // ✅ Envoie les résultats à Home
         })
         .catch((error) => console.error("Erreur lors de la recherche :", error));
     } else {
-      // Si la barre est vide, recharge les articles récents
+      // Recharge les articles récents si la barre est vide
       api.get(`/feeds/articles/recent/?limit=30`)
         .then((response) => onSearchResults(response.data))
         .catch((error) => console.error("Erreur lors du rechargement des articles :", error));
@@ -77,7 +76,7 @@ const Navbar = ({ onSearchResults }) => {
           )}
         </ul>
 
-        {/* ✅ Barre de recherche contrôlée par Navbar */}
+        {/* ✅ Barre de recherche */}
         <div className="search-bar">
           <input
             type="text"
@@ -86,16 +85,13 @@ const Navbar = ({ onSearchResults }) => {
             onChange={(e) => handleSearch(e.target.value)}
             className="search-input"
           />
-          <button
-            type="button"
-            className="search-button"
-            onClick={() => handleSearch(searchQuery)}
-          >
+          <button className="search-button">
             <FiSearch />
           </button>
         </div>
       </div>
 
+      {/* ✅ Icône de paramètres avec menu de gestion */}
       <div className="right-nav">
         <div className="dropdown">
           <button className="icon-button"><FiSettings /></button>
