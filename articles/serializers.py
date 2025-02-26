@@ -15,11 +15,6 @@ class FavoriteSerializer(serializers.ModelSerializer):
         fields = ['id', 'article', 'article_title', 'article_link', 'created_at']
         read_only_fields = ['id', 'created_at', 'article_title', 'article_link']
 
-
-import re
-from rest_framework import serializers
-from .models import RSSFeedEntry, Favorite
-
 class RSSFeedEntrySerializer(serializers.ModelSerializer):
     feed_title = serializers.CharField(source='feed.title', read_only=True)
     category = serializers.CharField(source='feed.category.name', read_only=True)

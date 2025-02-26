@@ -63,33 +63,32 @@ class ArticleSearchView(generics.ListAPIView):
     """
     serializer_class = RSSFeedEntrySerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['title', 'content', 'feed__title']  # Recherche par titre, contenu, ou nom du flux RSS
+    search_fields = ['title', 'content', 'feed__title']
 
     def get_queryset(self):
         return RSSFeedEntry.objects.all().order_by('-published_at')
 
 
 
+class ArticlePagination(PageNumberPagination):
+    page_size = 30
+    page_size_query_param = 'limit'
+    max_page_size = 100
+
 class RecentArticlesView(generics.ListAPIView):
     """
-    Vue pour récupérer les articles récents filtrés par catégorie (optionnel).
+    Vue pour récupérer les articles récents avec pagination.
     """
     serializer_class = RSSFeedEntrySerializer
+    pagination_class = ArticlePagination
 
     def get_queryset(self):
-        limit = int(self.request.query_params.get('limit', 30))
         category = self.request.query_params.get('category', None)
-
         queryset = RSSFeedEntry.objects.all().order_by('-published_at')
         if category:
-            queryset = queryset.filter(feed__category__name__icontains=category)  # Filtrer par catégorie
-        return queryset[:limit]
+            queryset = queryset.filter(feed__category__name__icontains=category)
+        return queryset
 
-
-class ArticlePagination(PageNumberPagination):
-    page_size = 10  # Nombre d'articles par page
-    page_size_query_param = 'page_size'
-    max_page_size = 50
 
 
 

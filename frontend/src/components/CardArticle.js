@@ -1,3 +1,4 @@
+// CardArticle.js
 import { Link } from "react-router-dom";
 import React from "react";
 
@@ -8,10 +9,8 @@ const CardArticle = ({ article }) => {
     image,
     category,
     feed_name,
-    detail_link,
   } = article;
 
-  // Formatage de la date
   const formatDate = (dateString) => {
     const options = { year: "numeric", month: "long", day: "numeric" };
     return new Date(dateString).toLocaleDateString("fr-FR", options);
@@ -19,26 +18,23 @@ const CardArticle = ({ article }) => {
 
   return (
     <div style={styles.card}>
-      {/* Image ou espace réservé */}
       <div style={styles.imageContainer}>
         {image ? (
           <img
             src={image}
             alt={title}
             style={styles.image}
-            referrerPolicy="no-referrer" // ✅ Ajouté pour CORS
+            referrerPolicy="no-referrer"
             onError={(e) => {
               e.target.onerror = null;
               e.target.src = "https://placehold.co/350x200?text=Image+indisponible";
             }}
           />
-
         ) : (
           <div style={styles.placeholder}>Pas d'image</div>
         )}
       </div>
 
-      {/* Contenu de la carte */}
       <div style={styles.content}>
         <h2 style={styles.title}>{title}</h2>
         <p style={styles.date}>{formatDate(published_at)}</p>

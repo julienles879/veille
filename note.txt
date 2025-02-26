@@ -1,0 +1,4 @@
+en train de faire le nouveau ui
+
+changement du nombre d'article sur la page pour passer à un scroll "infini" mais problème de back la page est 
+recharger en continuer. Peut être du à l'url, essayer de retirer le choix du nombre d'article affiché

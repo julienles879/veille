@@ -13,6 +13,10 @@ const Navbar = ({ onSearchResults }) => {
   useEffect(() => {
     api.get("/feeds/categories/")
       .then((response) => {
+        if (!Array.isArray(response.data)) {
+          console.error("Données de catégories invalides :", response.data);
+          return;
+        }
         setCategories(response.data);
         const maxVisible = 6;
         setVisibleCategories(response.data.slice(0, maxVisible));
@@ -20,20 +24,25 @@ const Navbar = ({ onSearchResults }) => {
       })
       .catch((error) => console.error("Erreur lors du chargement des catégories :", error));
   }, []);
+  
 
-  // ✅ Fonction de recherche en temps réel
+  // ✅ Recherche en temps réel directement depuis la Navbar
   const handleSearch = (query) => {
     setSearchQuery(query);
 
-    // Si la recherche n'est pas vide, effectue la recherche
+    if (!onSearchResults || typeof onSearchResults !== "function") {
+      console.error("onSearchResults n'est pas défini ou n'est pas une fonction !");
+      return;
+    }
+
     if (query.trim()) {
       api.get(`/feeds/articles/search/?search=${query}`)
         .then((response) => {
-          onSearchResults(response.data); // ✅ Met à jour les articles
+          onSearchResults(response.data); // ✅ Met à jour les articles via la prop
         })
         .catch((error) => console.error("Erreur lors de la recherche :", error));
     } else {
-      // Si la barre est vide, réinitialise les articles récents
+      // Si la barre est vide, recharge les articles récents
       api.get(`/feeds/articles/recent/?limit=30`)
         .then((response) => onSearchResults(response.data))
         .catch((error) => console.error("Erreur lors du rechargement des articles :", error));
@@ -68,7 +77,7 @@ const Navbar = ({ onSearchResults }) => {
           )}
         </ul>
 
-        {/* ✅ Barre de recherche en temps réel */}
+        {/* ✅ Barre de recherche contrôlée par Navbar */}
         <div className="search-bar">
           <input
             type="text"
@@ -77,7 +86,11 @@ const Navbar = ({ onSearchResults }) => {
             onChange={(e) => handleSearch(e.target.value)}
             className="search-input"
           />
-          <button type="button" className="search-button">
+          <button
+            type="button"
+            className="search-button"
+            onClick={() => handleSearch(searchQuery)}
+          >
             <FiSearch />
           </button>
         </div>
