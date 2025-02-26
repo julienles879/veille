@@ -1,0 +1,60 @@
+/* 🌟 Conteneur Principal */
+.homeContainer {
+    padding: 20px;
+    text-align: center;
+    max-width: 1300px;
+    margin: auto;
+  }
+  
+  /* 📰 Titre de la page */
+  .pageTitle {
+    font-size: 26px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #ffffff;
+  }
+  
+  /* 📌 Grille pour afficher les articles */
+  .articlesGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 🟢 4 colonnes sur grands écrans */
+    gap: 20px;
+    justify-content: center;
+  }
+  
+  /* ⏳ Message de chargement */
+  .loadingMessage {
+    font-size: 16px;
+    color: #aaa;
+    margin-top: 15px;
+  }
+  
+  /* ✅ Message de fin de liste */
+  .endMessage {
+    font-size: 14px;
+    color: #ccc;
+    margin-top: 10px;
+  }
+  
+  /* 📱 Responsive */
+  @media (max-width: 1024px) {
+    .articlesGrid {
+      grid-template-columns: repeat(2, 1fr); /* 🟡 2 colonnes sur tablettes */
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .homeContainer {
+      padding: 15px;
+    }
+  
+    .articlesGrid {
+      grid-template-columns: 1fr; /* 🔴 1 colonne sur mobile */
+      gap: 15px;
+    }
+  
+    .pageTitle {
+      font-size: 22px;
+    }
+  }
+  

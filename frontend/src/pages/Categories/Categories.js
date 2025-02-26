@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import api from "../../api";
 import CardCategories from "../../components/CardCategorie/CardCategorie"; // ✅ Import du composant
+import styles from "./Categories.module.css"; // ✅ Import du CSS
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
@@ -21,10 +22,10 @@ const Categories = () => {
   }, [fetchCategories]);
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Liste des Catégories</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <div style={styles.grid}>
+    <div className={styles.categoriesContainer}>
+      <h1 className={styles.categoriesTitle}>Liste des Catégories</h1>
+      {error && <p className={styles.errorMessage}>{error}</p>}
+      <div className={styles.categoriesGrid}>
         {categories.length > 0 ? (
           categories.map((category) => (
             <CardCategories key={category.id} Categories={category} />
@@ -35,15 +36,6 @@ const Categories = () => {
       </div>
     </div>
   );
-};
-
-const styles = {
-  grid: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "20px",
-    justifyContent: "center",
-  },
 };
 
 export default Categories;

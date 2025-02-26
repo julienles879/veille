@@ -1,0 +1,59 @@
+/* 🌟 Conteneur principal */
+.feed-container {
+    padding: 20px;
+    text-align: center;
+    color: white;
+  }
+  
+  .feed-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .feed-description {
+    font-size: 16px;
+    color: #ccc;
+    margin-bottom: 20px;
+  }
+  
+  /* 📌 Section Articles */
+  .articles-title {
+    font-size: 20px;
+    margin-top: 30px;
+  }
+  
+  /* 🎯 Grid pour afficher les articles */
+  .articles-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+  }
+  
+  /* 🔗 Lien de retour */
+  .back-link {
+    display: inline-block;
+    margin-top: 20px;
+    color: #007BFF;
+    font-weight: bold;
+    text-decoration: none;
+    transition: color 0.3s ease-in-out;
+  }
+  
+  .back-link:hover {
+    color: #0056b3;
+  }
+  
+  /* 📱 Responsive */
+  @media (max-width: 768px) {
+    .feed-container {
+      padding: 15px;
+    }
+  
+    .articles-grid {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+  

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import api from "../../api";
+import styles from "./AddRSSFeed.module.css"; // ✅ Import du fichier CSS
 
 const AddRSSFeed = () => {
   const [formData, setFormData] = useState({
@@ -15,7 +16,7 @@ const AddRSSFeed = () => {
   // Charger les catégories au montage du composant
   useEffect(() => {
     api
-      .get("/feeds/categories/") // Endpoint pour récupérer les catégories
+      .get("/feeds/categories/")
       .then((response) => {
         setCategories(response.data);
         setLoading(false);
@@ -40,12 +41,12 @@ const AddRSSFeed = () => {
   };
 
   return (
-    <div>
+    <div className={styles.container}>
       <h1>Ajouter un flux RSS</h1>
       {loading ? (
         <p>Chargement des catégories...</p>
       ) : error ? (
-        <p style={{ color: "red" }}>{error}</p>
+        <p className={styles.error}>{error}</p>
       ) : (
         <form onSubmit={handleSubmit}>
           <div>

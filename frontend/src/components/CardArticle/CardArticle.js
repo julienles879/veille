@@ -14,16 +14,18 @@ const CardArticle = ({ article }) => {
 
   const handleArticleClick = async () => {
     console.log(`👀 Consultation de l'article : ${title}`);
-
+  
     try {
-      await api.post("/feeds/articles/update_last_viewed/", { article_id: id });
+      await api.post(`/articles/${id}/update_last_viewed/`, { article_id: id });
       console.log("✅ Dernière consultation mise à jour !");
     } catch (error) {
       console.error("❌ Erreur lors de la mise à jour de la consultation :", error);
     }
-
+  
+    // 🚀 Rediriger vers la page des détails de l'article
     navigate(`/articles/${id}`);
   };
+  
 
   return (
     <div className={styles.card} onClick={handleArticleClick}>

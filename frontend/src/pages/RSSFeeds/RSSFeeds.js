@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import api from "../../api";
 import CardFeed from "../../components/CardFeed/CardFeed"; // ✅ Import du composant
+import styles from "./RSSFeeds.module.css"; // ✅ Import du CSS
 
 const RSSFeeds = () => {
   const [feeds, setFeeds] = useState([]);
@@ -24,27 +25,22 @@ const RSSFeeds = () => {
   }, [fetchFeeds]);
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Flux RSS</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <div style={styles.grid}>
+    <div className={styles.rssContainer}>
+      <h1 className={styles.pageTitle}>Flux RSS</h1>
+
+      {/* Gestion des erreurs */}
+      {error && <p className={styles.errorMessage}>{error}</p>}
+
+      {/* Affichage des flux sous forme de cartes */}
+      <div className={styles.feedsGrid}>
         {feeds.length > 0 ? (
           feeds.map((feed) => <CardFeed key={feed.id} feed={feed} />)
         ) : (
-          <p>Aucun flux trouvé.</p>
+          <p className={styles.loadingMessage}>Aucun flux trouvé.</p>
         )}
       </div>
     </div>
   );
-};
-
-const styles = {
-  grid: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "20px",
-    justifyContent: "center",
-  },
 };
 
 export default RSSFeeds;

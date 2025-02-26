@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import api from "../../api";
 import CardArticle from "../../components/CardArticle/CardArticle"; // ✅ Import du composant CardArticle
+import styles from "./Favorites.module.css"; // ✅ Import du CSS
 
 const Favorites = () => {
   const [favorites, setFavorites] = useState([]); // Liste des favoris
@@ -26,14 +27,14 @@ const Favorites = () => {
   }, [fetchFavorites]);
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Articles Favoris</h1>
+    <div className={styles.favoritesContainer}>
+      <h1 className={styles.favoritesTitle}>Articles Favoris</h1>
 
       {/* Affichage des erreurs */}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className={styles.errorMessage}>{error}</p>}
 
       {/* Liste des articles favoris sous forme de cartes */}
-      <div style={styles.grid}>
+      <div className={styles.favoritesGrid}>
         {favorites.length > 0 ? (
           favorites.map((favorite) => (
             <CardArticle key={favorite.id} article={favorite} />
@@ -44,15 +45,6 @@ const Favorites = () => {
       </div>
     </div>
   );
-};
-
-const styles = {
-  grid: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "20px",
-    justifyContent: "center",
-  },
 };
 
 export default Favorites;

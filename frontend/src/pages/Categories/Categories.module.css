@@ -1,0 +1,28 @@
+/* 🌟 Conteneur principal */
+.categories-container {
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .categories-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: white;
+  }
+  
+  /* 🔴 Message d'erreur */
+  .error-message {
+    color: red;
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+  
+  /* 🎯 Grid pour afficher les catégories */
+  .categories-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+  }
+  

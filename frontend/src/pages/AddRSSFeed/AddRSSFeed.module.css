@@ -1,0 +1,72 @@
+/* 🌟 Styles pour la page d'ajout de flux RSS */
+.container {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #2a2a2a;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    color: white;
+    text-align: center;
+  }
+  
+  h1 {
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+  
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  label {
+    font-weight: bold;
+    text-align: left;
+    display: block;
+  }
+  
+  input,
+  textarea,
+  select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+  }
+  
+  input,
+  textarea {
+    background-color: #3a3a3a;
+    color: white;
+  }
+  
+  select {
+    background-color: #3a3a3a;
+    color: white;
+  }
+  
+  button {
+    background-color: #61dafb;
+    color: black;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s ease-in-out;
+  }
+  
+  button:hover {
+    background-color: #4fb8e4;
+  }
+  
+  /* ✅ Message d'erreur */
+  .error {
+    color: red;
+    font-size: 14px;
+  }
+  

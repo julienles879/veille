@@ -1,0 +1,47 @@
+/* 🌟 Conteneur Principal */
+.rss-container {
+    padding: 20px;
+    text-align: center;
+    color: white;
+  }
+  
+  /* 📰 Titre de la page */
+  .page-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  /* 📌 Grid pour afficher les flux RSS */
+  .feeds-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+  }
+  
+  /* ⏳ Message de chargement */
+  .loading-message {
+    font-size: 16px;
+    color: #aaa;
+    margin-top: 15px;
+  }
+  
+  /* ⚠️ Message d'erreur */
+  .error-message {
+    color: red;
+    font-size: 16px;
+  }
+  
+  /* 📱 Responsive */
+  @media (max-width: 768px) {
+    .rss-container {
+      padding: 15px;
+    }
+  
+    .feeds-grid {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+  

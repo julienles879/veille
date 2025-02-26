@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import api from "../../api";
 import Navbar from "../../components/navbar/navbar";
 import CardArticle from "../../components/CardArticle/CardArticle";
+import styles from "./Home.module.css"; // ✅ Import du CSS
 
 const Home = () => {
   const [articles, setArticles] = useState([]);
@@ -13,7 +14,6 @@ const Home = () => {
   const fetchAbortRef = useRef(null);
   const isFetchingRef = useRef(false);
 
-  // ✅ Met à jour les articles après une recherche depuis la Navbar
   const handleSearchResults = (results) => {
     console.log("🔍 Recherche effectuée, résultats reçus:", results);
     setIsSearching(true);
@@ -22,7 +22,6 @@ const Home = () => {
     setArticles(Array.isArray(results.results) ? results.results : []);
   };
 
-  // ✅ Met à jour les articles après la sélection d'une catégorie
   const handleCategorySelect = (categoryName) => {
     console.log(`📂 Catégorie sélectionnée (ID): ${categoryName}`);
     setSelectedCategory(categoryName);
@@ -32,7 +31,6 @@ const Home = () => {
     setArticles([]);
   };
 
-  // 🔄 Récupère les articles avec pagination ou par catégorie
   const fetchArticles = useCallback(async () => {
     if (isFetchingRef.current || !hasMore || isSearching) return;
 
@@ -40,10 +38,9 @@ const Home = () => {
     setIsLoading(true);
     let query = `/feeds/articles/recent/?limit=30&page=${page}`;
     if (selectedCategory) {
-      query += `&category__name=${selectedCategory}`; // 🔥 Utiliser category__name et pas category=id
-      console.log("🔎 Catégorie envoyée au back :", selectedCategory); 
+      query += `&category__name=${selectedCategory}`;
+      console.log("🔎 Catégorie envoyée au back :", selectedCategory);
     }
-    
 
     console.log(`📡 Requête API envoyée: ${query}`);
 
@@ -78,7 +75,6 @@ const Home = () => {
     }
   }, [fetchArticles, page, selectedCategory]);
 
-  // 🔄 Gère le scroll infini
   useEffect(() => {
     let timeout = null;
     const handleScroll = () => {
@@ -109,29 +105,22 @@ const Home = () => {
   return (
     <div>
       <Navbar onSearchResults={handleSearchResults} onCategorySelect={handleCategorySelect} />
-      <div style={{ padding: "20px" }}>
-        <h1>Articles {selectedCategory ? `de la catégorie ${selectedCategory}` : "Récents"}</h1>
-        <div style={styles.grid}>
+      <div className={styles.homeContainer}>
+        <h1 className={styles.pageTitle}>
+          Articles {selectedCategory ? `de la catégorie ${selectedCategory}` : "Récents"}
+        </h1>
+        <div className={styles.articlesGrid}>
           {articles.length > 0 ? (
             articles.map((article) => <CardArticle key={article.id} article={article} />)
           ) : (
-            <p>⚠️ Aucun article trouvé.</p>
+            <p className={styles.loadingMessage}>⚠️ Aucun article trouvé.</p>
           )}
         </div>
-        {isLoading && <p>⏳ Chargement...</p>}
-        {!hasMore && <p>✅ Pas d'autres articles à charger.</p>}
+        {isLoading && <p className={styles.loadingMessage}>⏳ Chargement...</p>}
+        {!hasMore && <p className={styles.endMessage}>✅ Pas d'autres articles à charger.</p>}
       </div>
     </div>
   );
-};
-
-const styles = {
-  grid: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "20px",
-    justifyContent: "center",
-  },
 };
 
 export default Home;
