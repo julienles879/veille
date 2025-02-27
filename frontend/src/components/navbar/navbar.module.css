@@ -1,174 +1,193 @@
-/* 🌟 NAVBAR DESIGN MODERNE 🌟 */
+/* 🌟 NAVBAR DESIGN MODERNE */
 .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #222;
-    color: white;
-    padding: 10px 20px;
-    font-size: 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  }
-  
-  /* ✅ Conteneur principal */
-  .navContainer {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    justify-content: center;
-    gap: 15px;
-  }
-  
-  /* 🔄 Bouton de rechargement */
-  .iconButton {
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-    font-size: 20px;
-    padding: 8px;
-    transition: 0.2s;
-  }
-  
-  .iconButton:hover {
-    color: #ddd;
-  }
-  
-  /* 🏷️ Boutons catégories */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #222;
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* ✅ Conteneur principal */
+.navContainer {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+/* 🔄 Bouton de rechargement */
+.iconButton {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 20px;
+  padding: 8px;
+  transition: 0.2s;
+  position: relative;
+}
+
+.iconButton:hover {
+  color: #ddd;
+}
+
+/* 🏷️ Liste des catégories */
+.navList {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navItem button {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  padding: 8px 14px;
+  border-radius: 18px;
+  color: white;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  font-size: 14px;
+}
+
+.navItem button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 🔽 Conteneur Dropdown */
+.dropdownContainer {
+  position: relative;
+  display: inline-block;
+}
+
+/* 🔽 Menu déroulant (Catégories et Paramètres) */
+.dropdownMenu {
+  position: absolute;
+  top: 110%;  /* ✅ Positionné sous le bouton */
+  left: 50%;
+  transform: translateX(-50%); /* ✅ Centré sous le bouton */
+  background: #333;
+  border-radius: 6px;
+  padding: 5px 0;
+  min-width: 160px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  display: none; /* Caché par défaut */
+}
+
+/* 🔥 Affichage au survol */
+.dropdownContainer:hover .dropdownMenu {
+  display: block;
+}
+
+/* 🔽 Élément du menu */
+.dropdownItem {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 15px;
+  color: white;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 14px;
+  white-space: nowrap; /* ✅ Empêche le texte de sauter à la ligne */
+}
+
+.dropdownItem:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* 🔍 Barre de recherche */
+.searchBar {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 5px 10px;
+  position: relative;
+}
+
+.searchInput {
+  border: none;
+  outline: none;
+  background: none;
+  color: white;
+  padding: 5px;
+  font-size: 14px;
+  width: 150px;
+}
+
+.searchButton {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* 📱 Responsive */
+@media (max-width: 1024px) {
   .navList {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    list-style: none; /* ✅ Retire les puces */
-    padding: 0;
-  }
-  
-  .navItem button {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    padding: 8px 14px;
-    border-radius: 18px;
-    color: white;
-    cursor: pointer;
-    transition: background 0.3s ease;
-  }
-  
-  .navItem button:hover {
-    background: rgba(255, 255, 255, 0.3);
-  }
-  
-  /* ⬇️ Dropdown Menu */
-  .dropdown {
-    position: relative;
-  }
-  
-  .dropdownMenu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #333;
-    border-radius: 6px;
-    padding: 5px 0;
-    min-width: 160px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    z-index: 10;
-  }
-  
-  .dropdown:hover .dropdownMenu {
-    display: block;
-  }
-  
-  .dropdownItem {
-    display: block;
-    width: 100%;
-    text-align: left;
-    padding: 10px 15px;
-    color: white;
-    background: none;
-    border: none;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  
-  .dropdownItem:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
-  
-  /* 🔍 Barre de recherche */
-  .searchBar {
-    display: flex;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    padding: 5px 10px;
-  }
-  
-  .searchInput {
-    border: none;
-    outline: none;
-    background: none;
-    color: white;
-    padding: 5px;
-  }
-  
-  .searchButton {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 18px;
-    cursor: pointer;
-  }
-  
-  /* ⚙️ Icône de paramètres */
-  .rightNav {
-    position: relative;
-  }
-  
-  .dropdownContent {
-    display: none;
-    position: absolute;
-    right: 0;
-    top: 100%;
-    background: #333;
-    border-radius: 8px;
-    overflow: hidden;
-    padding: 5px 0;
-    min-width: 180px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
-  }
-  
-  .rightNav:hover .dropdownContent {
-    display: block;
-  }
-  
-  .dropdownContent a {
-    display: block;
-    padding: 10px 15px;
-    color: white;
-    text-decoration: none;
-    transition: background 0.2s;
-  }
-  
-  .dropdownContent a:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
-  
-  /* 📱 Responsive */
-  @media (max-width: 768px) {
-    .navList {
       flex-wrap: wrap;
       justify-content: center;
-    }
-  
-    .navItem button {
+  }
+
+  .navItem button {
       padding: 6px 12px;
       font-size: 14px;
-    }
-  
-    .navbar {
-      flex-direction: column;
-    }
   }
-  
+
+  .searchInput {
+      width: 120px;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+      flex-direction: column;
+      padding: 10px;
+  }
+
+  .navContainer {
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+  }
+
+  .navList {
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+  }
+
+  .searchBar {
+      width: 100%;
+      justify-content: center;
+  }
+
+  .searchInput {
+      width: 80%;
+  }
+
+  .rightNav {
+      margin-top: 10px;
+  }
+
+  /* 📌 Ajustement du menu déroulant en mobile */
+  .dropdownMenu {
+    left: 0;
+    transform: translateX(0);
+    min-width: 100px;
+  }
+}
