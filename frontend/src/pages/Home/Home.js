@@ -2,8 +2,8 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import api from "../../api";
 import Navbar from "../../components/navbar/navbar";
 import CardArticle from "../../components/CardArticle/CardArticle";
-import ArticleModal from "../../components/ArticleModal/ArticleModal"; // ✅ Import du composant modale
-import styles from "./Home.module.css"; 
+import ArticleModal from "../../components/ArticleModal/ArticleModal";
+import styles from "./Home.module.css";
 
 const Home = () => {
   const [articles, setArticles] = useState([]);
@@ -12,18 +12,22 @@ const Home = () => {
   const [page, setPage] = useState(1);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [selectedArticle, setSelectedArticle] = useState(null); // ✅ Stocker l'article sélectionné
+  const [selectedArticle, setSelectedArticle] = useState(null);
   const fetchAbortRef = useRef(null);
   const isFetchingRef = useRef(false);
 
+  // 🔍 Gestion de la recherche
   const handleSearchResults = (results) => {
+    console.log("🔍 Résultats de recherche reçus :", results);
     setIsSearching(true);
     setPage(1);
     setHasMore(false);
     setArticles(Array.isArray(results.results) ? results.results : []);
   };
 
+  // 📂 Gestion de la sélection de catégorie
   const handleCategorySelect = (categoryName) => {
+    console.log("📂 Catégorie sélectionnée :", categoryName);
     setSelectedCategory(categoryName);
     setPage(1);
     setHasMore(true);
@@ -31,8 +35,14 @@ const Home = () => {
     setArticles([]);
   };
 
+  // 📡 Récupération des articles avec pagination
   const fetchArticles = useCallback(async () => {
-    if (isFetchingRef.current || !hasMore || isSearching) return;
+    console.log("🔄 fetchArticles appelé avec page:", page, "et catégorie:", selectedCategory);
+
+    if (isFetchingRef.current || !hasMore || isSearching) {
+      console.log("⏳ Annulation du fetch : Déjà en cours ou plus d'articles.");
+      return;
+    }
 
     isFetchingRef.current = true;
     setIsLoading(true);
@@ -48,7 +58,10 @@ const Home = () => {
       fetchAbortRef.current = new AbortController();
 
       const response = await api.get(query, { signal: fetchAbortRef.current.signal });
+      console.log("📩 Réponse API reçue :", response.data);
+
       const articlesData = response.data.results || [];
+      console.log("📋 Articles récupérés :", articlesData.length);
 
       setArticles((prevArticles) => (page === 1 ? articlesData : [...prevArticles, ...articlesData]));
 
@@ -56,25 +69,55 @@ const Home = () => {
         setHasMore(false);
       }
     } catch (error) {
-      console.error("❌ Erreur lors de la récupération des articles:", error);
+      console.error("❌ Erreur lors de la récupération des articles :", error);
     } finally {
       setIsLoading(false);
       isFetchingRef.current = false;
     }
   }, [page, hasMore, isSearching, selectedCategory]);
 
+  // 🚀 Chargement initial des articles
   useEffect(() => {
+    console.log("📌 useEffect déclenché, appel à fetchArticles");
     if (!isSearching) {
       fetchArticles();
     }
   }, [fetchArticles, page, selectedCategory]);
 
-  // ✅ Fonction pour ouvrir la modale avec l'article sélectionné
+  // 📜 Gestion du scroll infini
+  useEffect(() => {
+    const handleScroll = () => {
+      console.log(
+        "📜 Scroll détecté :", 
+        window.innerHeight + document.documentElement.scrollTop, 
+        "/", 
+        document.documentElement.offsetHeight
+      );
+
+      if (
+        window.innerHeight + document.documentElement.scrollTop >=
+        document.documentElement.offsetHeight - 200 &&
+        !isLoading &&
+        hasMore &&
+        !isFetchingRef.current
+      ) {
+        console.log("🔄 Déclenchement du chargement des articles (page suivante)");
+        setPage((prevPage) => prevPage + 1);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [isLoading, hasMore]);
+
+  // ✅ Ouvrir la modale d'article
   const handleArticleSelect = (article) => {
     setSelectedArticle(article);
   };
 
-  // ✅ Fonction pour fermer la modale
+  // ❌ Fermer la modale d'article
   const handleCloseModal = () => {
     setSelectedArticle(null);
   };
@@ -82,12 +125,12 @@ const Home = () => {
   return (
     <div>
       <Navbar onSearchResults={handleSearchResults} onCategorySelect={handleCategorySelect} />
-      
+
       <div className={styles.homeContainer}>
         <h1 className={styles.pageTitle}>
           Articles {selectedCategory ? `de la catégorie ${selectedCategory}` : "Récents"}
         </h1>
-        
+
         <div className={styles.articlesGrid}>
           {articles.length > 0 ? (
             articles.map((article) => (
@@ -97,7 +140,7 @@ const Home = () => {
             <p className={styles.loadingMessage}>⚠️ Aucun article trouvé.</p>
           )}
         </div>
-        
+
         {isLoading && <p className={styles.loadingMessage}>⏳ Chargement...</p>}
         {!hasMore && <p className={styles.endMessage}>✅ Pas d'autres articles à charger.</p>}
       </div>
