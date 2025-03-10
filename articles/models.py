@@ -1,11 +1,12 @@
 from django.db import models
 from django.conf import settings  
 from feeds.models import RSSFeed
-
+from taggit.managers import TaggableManager
 
 from django.db import models
 from django.utils.timezone import now
 from feeds.models import RSSFeed
+from django.db import models
 
 class RSSFeedEntry(models.Model):
     """
@@ -22,7 +23,7 @@ class RSSFeedEntry(models.Model):
     content = models.TextField(null=True, blank=True, help_text="Contenu de l'article.")
     published_at = models.DateTimeField(help_text="Date de publication de l'article.", null = True, blank = True)  # ✅ Modifié
     last_viewed_at = models.DateTimeField(null=True, blank=True, help_text="Dernière consultation de l'article.")  # ✅ Ajouté
-
+    tags = TaggableManager(blank=True)
     def update_last_viewed(self):
         """Met à jour la date de dernière consultation"""
         self.last_viewed_at = now()

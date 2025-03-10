@@ -92,6 +92,23 @@
   transform: scale(1.2);
 }
 
+.tagsContainer {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.tag {
+  background: #61dafb;
+  color: #222;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+
 /* 📱 Responsive */
 @media (max-width: 768px) {
   .card {

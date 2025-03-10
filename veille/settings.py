@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'background_task',
     'feedparser',
+    'taggit',
     'users',
     'feeds',
     'articles',

@@ -1,5 +1,6 @@
 import re
 from rest_framework import serializers
+from taggit.serializers import TaggitSerializer, TagListSerializerField 
 from .models import *
 
 
@@ -20,6 +21,7 @@ class RSSFeedEntrySerializer(serializers.ModelSerializer):
     category = serializers.CharField(source='feed.category.name', read_only=True)
     published_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
     image = serializers.SerializerMethodField()  # ✅ Champ image dynamique
+    tags = TagListSerializerField()
 
     class Meta:
         model = RSSFeedEntry
@@ -33,6 +35,7 @@ class RSSFeedEntrySerializer(serializers.ModelSerializer):
             'content',
             'published_at',
             'image',  # ✅ Image incluse
+            'tags',
         ]
         read_only_fields = ['id', 'feed', 'feed_title', 'category', 'published_at', 'image']
 

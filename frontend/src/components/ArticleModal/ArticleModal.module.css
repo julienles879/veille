@@ -116,18 +116,35 @@
     border-radius: 8px;
     cursor: pointer;
     transition: background 0.3s ease-in-out, transform 0.2s;
-  }
+}
   
   /* Effet au survol */
-  .favoriteButton:hover {
+.favoriteButton:hover {
     background: #666;
     transform: scale(1.05);
-  }
-  
-  /* Supprimer le focus bleu */
-  .favoriteButton:focus {
+}
+
+/* Supprimer le focus bleu */
+.favoriteButton:focus {
     outline: none;
-  }
+}
+
+.tagsContainer {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.tag {
+    background: #61dafb;
+    color: #222;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
   
 
 /* 🔄 Animations */

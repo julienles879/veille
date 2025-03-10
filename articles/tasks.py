@@ -1,68 +1,82 @@
 import feedparser
+import re
+import nltk
+from collections import Counter
 from datetime import datetime, timedelta
 from django.utils.timezone import now
 from background_task import background
 from .models import *
+from nltk.corpus import stopwords
+
+# ✅ Télécharger les stopwords français pour éviter les mots inutiles
+nltk.download('stopwords')
+STOPWORDS = set(stopwords.words("french"))
+
+def extract_tags_from_content(title, content):
+    """
+    Génère des tags dynamiques en analysant le texte de l'article.
+    - Supprime les mots inutiles (stopwords).
+    - Sélectionne les mots les plus fréquents.
+    """
+    text = f"{title.lower()} {content.lower()}"
+    words = re.findall(r'\b\w{4,}\b', text)  # Prend les mots de 4 lettres ou plus
+    words = [word for word in words if word not in STOPWORDS]  # Retire les mots courants
+
+    most_common = Counter(words).most_common(5)  # Prend les 5 mots les plus fréquents
+    return [word for word, freq in most_common]
 
 @background(schedule=3600)  # 🔥 Exécution toutes les heures
-def delete_old_articles():
-    """
-    Supprime les articles publiés il y a plus d'une heure, sauf ceux qui sont en favoris
-    ou qui sont encore affichés par un utilisateur.
-    """
-    cutoff_time = now() - timedelta(hours=1)  # 🔥 Articles plus vieux d'une heure
-
-    # Récupère les IDs des articles favoris pour les exclure
-    favorite_article_ids = Favorite.objects.values_list('article_id', flat=True)
-
-    # Articles encore affichés par un utilisateur
-    displayed_article_ids = RSSFeedEntry.objects.filter(last_viewed_at__gte=cutoff_time).values_list('id', flat=True)
-
-    # Supprime les articles anciens qui ne sont ni en favoris ni affichés
-    old_articles = RSSFeedEntry.objects.filter(
-        published_at__lt=cutoff_time
-    ).exclude(id__in=favorite_article_ids).exclude(id__in=displayed_article_ids)
-
-    deleted_count, _ = old_articles.delete()
-    print(f"🗑️ {deleted_count} articles supprimés (publiés avant {cutoff_time}, hors favoris et affichés)")
-
-    # Replanifier la tâche toutes les heures
-    delete_old_articles(repeat=3600)
-
-
-
-from django.utils.timezone import now
-
-@background(schedule=10)
 def fetch_articles_for_feeds():
-    repeat_time = 2 * 60  # 🔄 Répéter toutes les 2 minutes
-
+    """
+    Tâche pour récupérer les articles des flux RSS toutes les heures et leur assigner des tags dynamiques.
+    """
     feeds = RSSFeed.objects.all()
     for feed in feeds:
         parsed_feed = feedparser.parse(feed.url)
-
-        if parsed_feed.bozo:
-            print(f"🚨 Erreur lors du parsing du flux : {feed.url}")
+        if parsed_feed.bozo:  # Vérifie si le flux est valide
+            print(f"❌ Erreur lors du parsing du flux : {feed.url}")
             continue
 
         for entry in parsed_feed.entries:
             if RSSFeedEntry.objects.filter(link=entry.link).exists():
-                continue
+                continue  # L'article existe déjà
 
-            # 🛠️ Vérifie si la date de publication est disponible
-            published_at = (
-                datetime(*entry.published_parsed[:6])
-                if hasattr(entry, "published_parsed")
-                else now()  # ✅ Utilise la date actuelle si absente
-            )
+            title = entry.title
+            content = entry.get("summary", "")
+            published_at = datetime(*entry.published_parsed[:6]) if "published_parsed" in entry else now()
 
-            RSSFeedEntry.objects.create(
+            # ✅ Création de l'article
+            article = RSSFeedEntry.objects.create(
                 feed=feed,
-                title=entry.title,
+                title=title,
                 link=entry.link,
-                content=entry.get("summary", ""),
-                published_at=published_at,  # ✅ Toujours une valeur
+                content=content,
+                published_at=published_at,
             )
-            print(f"✅ Article ajouté : {entry.title} - {published_at}")
 
-    fetch_articles_for_feeds(repeat=repeat_time)
+            # ✅ Génération des tags dynamiques et assignation automatique
+            detected_tags = extract_tags_from_content(title, content)
+            article.tags.add(*detected_tags)  # 🔥 Ajout des tags générés automatiquement
+
+            print(f"✅ Article ajouté : {title} avec tags {detected_tags}")
+
+    fetch_articles_for_feeds(repeat=3600)
+
+
+@background(schedule=86400)  # 🔥 Exécution quotidienne
+def delete_old_articles():
+    """
+    Supprime les articles publiés il y a plus d'un jour, sauf ceux qui sont en favoris.
+    """
+    cutoff_time = now() - timedelta(days=1)
+
+    # Récupère les IDs des articles favoris pour éviter leur suppression
+    favorite_article_ids = Favorite.objects.values_list('article_id', flat=True)
+
+    # Supprime les articles non favoris
+    old_articles = RSSFeedEntry.objects.filter(published_at__lt=cutoff_time).exclude(id__in=favorite_article_ids)
+    deleted_count, _ = old_articles.delete()
+
+    print(f"🗑️ {deleted_count} articles supprimés (publiés avant {cutoff_time}, hors favoris).")
+
+    delete_old_articles(schedule=86400)
