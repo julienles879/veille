@@ -20,7 +20,7 @@ class RSSFeedEntry(models.Model):
     title = models.CharField(max_length=255, help_text="Titre de l'article.")
     link = models.URLField(help_text="Lien vers l'article.")
     content = models.TextField(null=True, blank=True, help_text="Contenu de l'article.")
-    published_at = models.DateTimeField(help_text="Date de publication de l'article.")
+    published_at = models.DateTimeField(help_text="Date de publication de l'article.", null = True, blank = True)  # ✅ Modifié
     last_viewed_at = models.DateTimeField(null=True, blank=True, help_text="Dernière consultation de l'article.")  # ✅ Ajouté
 
     def update_last_viewed(self):

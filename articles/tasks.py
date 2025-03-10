@@ -31,35 +31,38 @@ def delete_old_articles():
 
 
 
+from django.utils.timezone import now
+
 @background(schedule=10)
 def fetch_articles_for_feeds():
-    """
-    Tâche pour récupérer les articles des flux RSS.
-    """
-    # Délai de répétition défini en dur (par exemple, toutes les 2 minutes)
-    repeat_time = 2 * 60  # 2 minutes
+    repeat_time = 2 * 60  # 🔄 Répéter toutes les 2 minutes
 
     feeds = RSSFeed.objects.all()
     for feed in feeds:
         parsed_feed = feedparser.parse(feed.url)
-        if parsed_feed.bozo:  # Vérifie si le flux est valide
-            print(f"Erreur lors du parsing du flux : {feed.url}")
+
+        if parsed_feed.bozo:
+            print(f"🚨 Erreur lors du parsing du flux : {feed.url}")
             continue
 
         for entry in parsed_feed.entries:
-            # Vérifie si l'article existe déjà
             if RSSFeedEntry.objects.filter(link=entry.link).exists():
                 continue
 
-            # Ajouter l'article à la base de données
+            # 🛠️ Vérifie si la date de publication est disponible
+            published_at = (
+                datetime(*entry.published_parsed[:6])
+                if hasattr(entry, "published_parsed")
+                else now()  # ✅ Utilise la date actuelle si absente
+            )
+
             RSSFeedEntry.objects.create(
                 feed=feed,
                 title=entry.title,
                 link=entry.link,
-                content=entry.get("summary", ""),  # Récupère le résumé si disponible
-                published_at=datetime(*entry.published_parsed[:6]) if "published_parsed" in entry else None
+                content=entry.get("summary", ""),
+                published_at=published_at,  # ✅ Toujours une valeur
             )
-            print(f"Article ajouté : {entry.title}")
+            print(f"✅ Article ajouté : {entry.title} - {published_at}")
 
-    # Planifier la tâche à nouveau avec le délai fixé
     fetch_articles_for_feeds(repeat=repeat_time)
