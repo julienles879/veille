@@ -10,3 +10,6 @@ de plus, les gestions des catégories / flux / favoris et ajout flux a refaire c
 
 Barre de recherche et affichage des catégorie OK
 Mais l'affichage des catégorie de fonctionne pas 
+
+Problème sur l'ajout de flux dans le modal, la liste 
+pas encore de catégorie et d'affichage des favoris

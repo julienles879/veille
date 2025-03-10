@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FiSettings, FiMoreHorizontal, FiSearch, FiRefreshCw } from "react-icons/fi";
-import styles from "./navbar.module.css"; // ✅ Utilisation du module CSS
+import SettingsModal from "../SettingsModal/SettingsModal"; // ✅ Import du modal
+import styles from "./navbar.module.css";
 import api from "../../api";
 
 const Navbar = ({ onSearchResults, onCategorySelect }) => {
@@ -8,6 +9,7 @@ const Navbar = ({ onSearchResults, onCategorySelect }) => {
   const [visibleCategories, setVisibleCategories] = useState([]);
   const [overflowCategories, setOverflowCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // 🔄 Charger les catégories au montage
   useEffect(() => {
@@ -41,15 +43,9 @@ const Navbar = ({ onSearchResults, onCategorySelect }) => {
     }
   };
 
-  // 📂 Gérer le clic sur une catégorie
-  const handleCategoryClick = (categoryName) => {
-    onCategorySelect(categoryName);
-  };
-
   return (
-    <nav className={styles.navbar}>
-      <div className={styles.navContainer}>
-        
+    <>
+      <nav className={styles.navbar}>
         {/* 🔄 Bouton Recharger */}
         <button className={styles.iconButton} onClick={() => onCategorySelect(null)} title="Recharger">
           <FiRefreshCw />
@@ -59,13 +55,13 @@ const Navbar = ({ onSearchResults, onCategorySelect }) => {
         <ul className={styles.navList}>
           {visibleCategories.map((cat) => (
             <li key={cat.id} className={styles.navItem}>
-              <button className={styles.navLink} onClick={() => handleCategoryClick(cat.name)}>
+              <button className={styles.navLink} onClick={() => onCategorySelect(cat.name)}>
                 {cat.name}
               </button>
             </li>
           ))}
 
-          {/* 🔽 Menu déroulant Catégories supplémentaires au survol */}
+          {/* 🔽 Menu déroulant pour afficher les catégories supplémentaires */}
           {overflowCategories.length > 0 && (
             <li className={`${styles.navItem} ${styles.dropdownContainer}`}>
               <button className={styles.iconButton}>
@@ -76,7 +72,7 @@ const Navbar = ({ onSearchResults, onCategorySelect }) => {
                   <button 
                     key={cat.id} 
                     className={styles.dropdownItem} 
-                    onClick={() => handleCategoryClick(cat.name)}
+                    onClick={() => onCategorySelect(cat.name)}
                   >
                     {cat.name}
                   </button>
@@ -100,19 +96,19 @@ const Navbar = ({ onSearchResults, onCategorySelect }) => {
           </button>
         </div>
 
-        {/* ⚙️ Paramètres (menu en hover) */}
-        <div className={`${styles.rightNav} ${styles.dropdownContainer}`}>
-          <button className={styles.iconButton}>
-            <FiSettings />
-          </button>
-          <div className={styles.dropdownMenu}>
-            <button className={styles.dropdownItem}>Option 1</button>
-            <button className={styles.dropdownItem}>Option 2</button>
-          </div>
-        </div>
+        {/* ⚙️ Bouton Paramètres → Ouvre le modal */}
+        <button
+          className={styles.iconButton}
+          title="Paramètres"
+          onClick={() => setIsModalOpen(true)}
+        >
+          <FiSettings />
+        </button>
+      </nav>
 
-      </div>
-    </nav>
+      {/* ✅ Affichage du modal si ouvert */}
+      {isModalOpen && <SettingsModal onClose={() => setIsModalOpen(false)} />}
+    </>
   );
 };
 

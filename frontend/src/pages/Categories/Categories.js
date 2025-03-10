@@ -1,3 +1,5 @@
+//src/pages/Categories/Categories.js
+
 import React, { useState, useEffect, useCallback } from "react";
 import api from "../../api";
 import CardCategories from "../../components/CardCategorie/CardCategorie"; // ✅ Import du composant
