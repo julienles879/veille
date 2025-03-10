@@ -180,19 +180,32 @@
 }
 
 /* ❌ Bouton de suppression */
-.deleteButton {
-  background: red;
-  color: white;
-  border: none;
-  padding: 6px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background 0.3s;
-}
 
-.deleteButton:hover {
-  background: darkred;
+  .deleteButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #ff4d4d; /* Rouge doux */
+    transition: transform 0.2s ease-in-out, color 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: rgba(255, 77, 77, 0.1); /* Fond semi-transparent */
+  }
+
+  .deleteButton:hover {
+    transform: scale(1.2);
+    color: #ff1a1a; /* Rouge vif au survol */
+    background-color: rgba(255, 77, 77, 0.3);
+  }
+
+  /* Icône de suppression */
+  .deleteButton::before {
+    content: "🗑"; /* Icône poubelle */
 }
 
 /* 📱 Responsive */

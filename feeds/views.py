@@ -186,3 +186,21 @@ class CategoryDetailView(RetrieveAPIView):
     """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    
+
+class CategoryDeleteView(generics.DestroyAPIView):
+    """
+    Vue pour supprimer une catégorie.
+    """
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+    def delete(self, request, *args, **kwargs):
+        category_id = kwargs.get("pk")
+        try:
+            category = Category.objects.get(id=category_id)
+            category.delete()
+            return Response({"message": "Catégorie supprimée avec succès."}, status=HTTP_200_OK)
+        except Category.DoesNotExist:
+            return Response({"error": "Catégorie introuvable."}, status=HTTP_404_NOT_FOUND)
+

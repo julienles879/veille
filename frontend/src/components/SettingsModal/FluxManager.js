@@ -121,7 +121,7 @@ const FluxManager = () => {
         {fluxList.length > 0 ? fluxList.map((flux) => (
           <li key={flux.id} className={styles.fluxItem}>
             <span className={styles.feedTitle}><strong>{flux.title}</strong> <span className={styles.feedCategory}>📂 {flux.category_name}</span></span>
-            <button className={styles.deleteButton} onClick={() => handleDeleteFlux(flux.id)}>❌</button>
+            <button className={styles.deleteButton} onClick={() => handleDeleteFlux(flux.id)}></button>
           </li>
         )) : <p className={styles.noFlux}>⚠️ Aucun flux RSS trouvé.</p>}
       </ul>
