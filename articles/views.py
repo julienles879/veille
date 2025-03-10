@@ -36,20 +36,23 @@ class FavoriteListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class AddFavoriteView(APIView):
-    """
-    Vue pour ajouter un favori.
-    """
     def post(self, request, *args, **kwargs):
+        print("🚀 Requête reçue :", request.data)  # 🛠 Voir les données reçues
         article_id = request.data.get('article_id')
+
         if not article_id:
             return Response({"error": "Article ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             article = RSSFeedEntry.objects.get(id=article_id)
             favorite, created = Favorite.objects.get_or_create(article=article)
             if created:
+                print("✅ Article ajouté aux favoris :", article.title)
                 return Response({"message": "Article added to favorites."}, status=status.HTTP_201_CREATED)
+            print("⚠️ Article déjà favori :", article.title)
             return Response({"message": "Article is already a favorite."}, status=status.HTTP_200_OK)
         except RSSFeedEntry.DoesNotExist:
+            print("❌ Article non trouvé :", article_id)
             return Response({"error": "Article not found."}, status=status.HTTP_404_NOT_FOUND)
 
 class RemoveFavoriteView(APIView):

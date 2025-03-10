@@ -1,33 +1,59 @@
-import React from "react";
-import api from "../../api";
+//src/components/CardArticle/CardArticle.js
+
+import React, { useState, useEffect } from "react";
 import styles from "./CardArticle.module.css"; // ✅ Import du CSS
 
 const CardArticle = ({ article, onArticleSelect }) => {
   const { id, title, published_at, image, category, feed_title } = article;
 
-  const formatDate = (dateString) => {
-    const options = { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" };
-    return new Date(dateString).toLocaleDateString("fr-FR", options);
-  };
+  // État pour savoir si l'article est favori
+  const [isFavorite, setIsFavorite] = useState(false);
 
-  const handleArticleClick = async () => {
-    console.log(`👀 Consultation de l'article : ${title}`);
+  // Vérifier si l'article est déjà un favori au chargement
+  useEffect(() => {
+    fetch(`http://127.0.0.1:8000/articles/favorites/`)
+      .then((response) => response.json())
+      .then((favorites) => {
+        const isAlreadyFavorite = favorites.some((fav) => fav.id === id);
+        setIsFavorite(isAlreadyFavorite);
+      })
+      .catch((error) => console.error("Erreur de récupération des favoris :", error));
+  }, [id]);
+
+  // Fonction pour ajouter/supprimer un article des favoris
+  const toggleFavorite = async (event) => {
+    event.stopPropagation(); // Empêche l'ouverture de l'article au clic
+
+    const apiUrl = isFavorite
+      ? `http://127.0.0.1:8000/articles/favorites/remove/${id}/` // Suppression du favori
+      : `http://127.0.0.1:8000/articles/favorites/add/`; // Ajout du favori
+
+    const method = isFavorite ? "DELETE" : "POST";
+    const body = isFavorite ? null : JSON.stringify({ article_id: id });
 
     try {
-      await api.post(`/articles/${id}/update_last_viewed/`, { article_id: id });
-      console.log("✅ Dernière consultation mise à jour !");
-    } catch (error) {
-      console.error("❌ Erreur lors de la mise à jour de la consultation :", error);
-    }
+      const response = await fetch(apiUrl, {
+        method: method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: body,
+      });
 
-    // 🚀 Afficher la modale avec l'article sélectionné
-    if (onArticleSelect) {
-      onArticleSelect(article);
+      if (response.ok) {
+        setIsFavorite(!isFavorite);
+        console.log(isFavorite ? "❌ Favori supprimé" : "✅ Favori ajouté !");
+      } else {
+        const errorResponse = await response.json();
+        console.error("Erreur lors de la mise à jour du favori :", errorResponse);
+      }
+    } catch (error) {
+      console.error("Erreur réseau :", error);
     }
   };
 
   return (
-    <div className={styles.card} onClick={handleArticleClick}>
+    <div className={styles.card} onClick={() => onArticleSelect(article)}>
       <div className={styles.imageContainer}>
         {image ? (
           <img
@@ -44,15 +70,20 @@ const CardArticle = ({ article, onArticleSelect }) => {
           <div className={styles.placeholder}>Pas d'image</div>
         )}
       </div>
-
+  
       <div className={styles.content}>
         <h2 className={styles.title}>{title}</h2>
-        <p className={styles.date}>🕒 {formatDate(published_at)}</p>
+        <p className={styles.date}>🕒 {new Date(published_at).toLocaleDateString("fr-FR")}</p>
         <p className={styles.category}>📂 Catégorie : <strong>{category || "Non spécifiée"}</strong></p>
         <p className={styles.feed}>📰 Source : <strong>{feed_title}</strong></p>
       </div>
+  
+      {/* Icône de favoris positionnée en bas à droite */}
+      <button className={styles.favoriteButton} onClick={toggleFavorite}>
+        {isFavorite ? "❤️" : "🤍"}
+      </button>
     </div>
   );
-};
+}  
 
 export default CardArticle;

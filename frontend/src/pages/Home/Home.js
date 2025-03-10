@@ -1,3 +1,5 @@
+//src/pages/Home/Home.js
+
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import api from "../../api";
 import Navbar from "../../components/navbar/navbar";

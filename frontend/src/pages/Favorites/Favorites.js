@@ -1,3 +1,5 @@
+//src/pages/Favorites/Favorites.js
+
 import React, { useState, useEffect, useCallback } from "react";
 import api from "../../api";
 import CardArticle from "../../components/CardArticle/CardArticle"; // ✅ Import du composant CardArticle
