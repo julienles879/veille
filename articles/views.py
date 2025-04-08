@@ -87,7 +87,7 @@ class RSSFeedEntryListView(generics.ListAPIView):
     ordering = ['-published_at']  # Par défaut, tri par date décroissante
     
     # Champs pour la recherche
-    search_fields = ['title', 'content', 'feed__category__name']
+    search_fields = ['title', 'content', 'feed__category__name', 'tags__name']
 
 
 

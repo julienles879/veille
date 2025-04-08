@@ -21,7 +21,7 @@ class RSSFeedEntrySerializer(serializers.ModelSerializer):
     category = serializers.CharField(source='feed.category.name', read_only=True)
     published_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
     image = serializers.SerializerMethodField()  # ✅ Champ image dynamique
-    tags = TagListSerializerField()
+    tags = serializers.SerializerMethodField()
 
     class Meta:
         model = RSSFeedEntry
@@ -38,6 +38,15 @@ class RSSFeedEntrySerializer(serializers.ModelSerializer):
             'tags',
         ]
         read_only_fields = ['id', 'feed', 'feed_title', 'category', 'published_at', 'image']
+        
+    def get_tags(self, obj):
+        exclude = {
+            'class', 'autobr', 'href', 'https', 'br', 'img', 'span', 'src', 'rel', 'nofollow',
+            'directory', 'tag', 'title', 'content', 'html', 'meta', 'link', 'stylesheet',
+            'button', 'text', 'css', 'container', 'type', 'value', 'name', 'id', 'div'
+        }
+        return [tag.name for tag in obj.tags.all() if tag.name.lower() not in exclude]
+        
 
     def get_image(self, obj):
         """
