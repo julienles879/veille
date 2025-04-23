@@ -6,14 +6,14 @@ import AddRSSFeed from "./pages/AddRSSFeed/AddRSSFeed";
 import Favorites from "./pages/Favorites/Favorites";
 import FeedDetail from "./pages/FeedDetail/FeedDetail";
 import Categories from "./pages/Categories/Categories";
-import Navbar from "./components/navbar/navbar";
+// import Navbar from "./components/navbar/navbar";
 import Stats from "./pages/Stats/Stats";
 
 
 const App = () => {
   return (
     <Router>
-      <Navbar
+      {/* <Navbar
         onCategorySelect={(cat) => {
           // Tu peux gérer une redirection ou mettre à jour un state global ici
           // Pour l'instant, on peut ne rien faire ou naviguer vers la home :
@@ -24,7 +24,7 @@ const App = () => {
           }
         }}
         onSearchResults={null} // Ou à gérer globalement si tu as un système centralisé
-      />
+      /> */}
 
       <Routes>
         <Route path="/" element={<Home />} />

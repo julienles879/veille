@@ -6,6 +6,7 @@ import CardArticle from "../../components/CardArticle/CardArticle";
 import ArticleModal from "../../components/ArticleModal/ArticleModal";
 import FloatingGoogleSearch from "../../components/FloatingGoogleSearch/FloatingGoogleSearch";
 import styles from "./Home.module.css";
+import Navbar from "../../components/navbar/navbar";
 import WeatherCard from "../../components/WeatherCard/WeatherCard";
 import EmptyCard from "../../components/EmptyCard/EmptyCard";
 
@@ -103,7 +104,7 @@ const Home = () => {
       console.log("✅ Forçage fetchArticles après mise à jour selectedCategory depuis l'URL");
       fetchArticles();
     }
-  }, [selectedCategory, fetchArticles]);
+  }, [selectedCategory, fetchArticles, isSearching]);
   
 
   // 🚀 Chargement initial des articles
@@ -112,7 +113,7 @@ const Home = () => {
     if (!isSearching) {
       fetchArticles();
     }
-  }, [fetchArticles, page, selectedCategory]);
+  }, [fetchArticles, page, selectedCategory, isSearching]);
 
   // 📜 Gestion du scroll infini
   useEffect(() => {
@@ -154,6 +155,8 @@ const Home = () => {
 
   return (
     <div>
+      <Navbar onSearchResults={handleSearchResults} onCategorySelect={handleCategorySelect} />
+
       <div className={styles.topWrapper}>
         <div className={styles.weatherWrapper}>
           <WeatherCard />
