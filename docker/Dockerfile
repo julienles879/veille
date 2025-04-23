@@ -20,6 +20,7 @@ WORKDIR /app
 COPY . /app/
 
 # Copie le frontend compilé dans les fichiers statiques de Django
+RUN rm -rf veille/staticfiles/frontend
 COPY --from=frontend /app/frontend/build/ veille/staticfiles/frontend/
 
 # Install des dépendances Python
