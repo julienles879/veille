@@ -127,22 +127,35 @@
 .topWrapper {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
+  gap: 3rem;
+  margin: 1rem auto;
   flex-wrap: wrap;
-  gap: 2rem;
-  max-width: 1300px;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 1200px;
+  height: auto;
+}
+
+/* Fausse carte vide à droite pour équilibrer */
+.placeholderCard {
+  width: 300px; /* même largeur que WeatherCard */
+  height: 100%; /* même hauteur que le plus haut élément */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .weatherWrapper {
-  flex: 0 1 300px; /* taille fixe de la météo */
+  flex-shrink: 0;
+  width: 300px;
   display: flex;
-  justify-content: flex-start;
+  justify-content: flex-end;
 }
 
 .searchWrapper {
-  flex: 1;
   display: flex;
-  justify-content: center; /* centre la recherche horizontalement */
+  flex-direction: column;
+  justify-content: center;
+  width: 500px;
+  height: 180px; /* comme la météo */
 }
+

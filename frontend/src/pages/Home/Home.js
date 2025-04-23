@@ -7,6 +7,8 @@ import ArticleModal from "../../components/ArticleModal/ArticleModal";
 import FloatingGoogleSearch from "../../components/FloatingGoogleSearch/FloatingGoogleSearch";
 import styles from "./Home.module.css";
 import WeatherCard from "../../components/WeatherCard/WeatherCard";
+import EmptyCard from "../../components/EmptyCard/EmptyCard";
+
 import { useSearchParams } from "react-router-dom";
 
 
@@ -159,13 +161,16 @@ const Home = () => {
         <div className={styles.searchWrapper}>
           <FloatingGoogleSearch />
         </div>
+        <div className={styles.weatherWrapper}>
+          <EmptyCard />
+        </div>
       </div>
 
 
       <div className={styles.homeContainer}>
-        <h1 className={styles.pageTitle}>
+        {/* <h1 className={styles.pageTitle}>
           Articles {selectedCategory ? `de la catégorie ${selectedCategory}` : "Récents"}
-        </h1>
+        </h1> */}
 
         
 
