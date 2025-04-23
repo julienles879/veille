@@ -5,7 +5,10 @@ import api from "../../api";
 import Navbar from "../../components/navbar/navbar";
 import CardArticle from "../../components/CardArticle/CardArticle";
 import ArticleModal from "../../components/ArticleModal/ArticleModal";
+import FloatingGoogleSearch from "../../components/FloatingGoogleSearch/FloatingGoogleSearch";
 import styles from "./Home.module.css";
+import WeatherCard from "../../components/WeatherCard/WeatherCard";
+
 
 const Home = () => {
   const [articles, setArticles] = useState([]);
@@ -128,10 +131,16 @@ const Home = () => {
     <div>
       <Navbar onSearchResults={handleSearchResults} onCategorySelect={handleCategorySelect} />
 
+      <FloatingGoogleSearch />
+
+      <WeatherCard city="Paris" />
+
       <div className={styles.homeContainer}>
         <h1 className={styles.pageTitle}>
           Articles {selectedCategory ? `de la catégorie ${selectedCategory}` : "Récents"}
         </h1>
+
+        
 
         <div className={styles.articlesGrid}>
           {articles.length > 0 ? (
@@ -149,7 +158,10 @@ const Home = () => {
 
       {/* ✅ Affichage de la modale si un article est sélectionné */}
       {selectedArticle && <ArticleModal article={selectedArticle} onClose={handleCloseModal} />}
+
+
     </div>
+    
   );
 };
 
