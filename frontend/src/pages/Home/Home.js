@@ -131,9 +131,15 @@ const Home = () => {
     <div>
       <Navbar onSearchResults={handleSearchResults} onCategorySelect={handleCategorySelect} />
 
-      <FloatingGoogleSearch />
+      <div className={styles.topWrapper}>
+        <div className={styles.weatherWrapper}>
+          <WeatherCard />
+        </div>
+        <div className={styles.searchWrapper}>
+          <FloatingGoogleSearch />
+        </div>
+      </div>
 
-      <WeatherCard city="Paris" />
 
       <div className={styles.homeContainer}>
         <h1 className={styles.pageTitle}>

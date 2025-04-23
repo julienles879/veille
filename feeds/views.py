@@ -178,6 +178,24 @@ class CategoryListCreateView(generics.ListCreateAPIView):
     """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer 
+    
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            category = serializer.save()
+
+            # 🔧 Création automatique du dossier d'image
+            category_slug = category.name.lower().replace(" ", "_")
+            image_dir = os.path.join(settings.MEDIA_ROOT, 'images', 'categorie', category_slug)
+
+            try:
+                os.makedirs(image_dir, exist_ok=True)
+                print(f"✅ Dossier créé : {image_dir}")
+            except Exception as e:
+                print(f"⚠️ Erreur lors de la création du dossier : {e}")
+
+            return Response(serializer.data, status=HTTP_201_CREATED)
+        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
 class CategoryDetailView(RetrieveAPIView):

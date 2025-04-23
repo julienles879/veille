@@ -1,4 +1,8 @@
 import re
+import html
+import os
+import random
+from django.conf import settings
 from rest_framework import serializers
 from taggit.serializers import TaggitSerializer, TagListSerializerField 
 from .models import *
@@ -20,8 +24,9 @@ class RSSFeedEntrySerializer(serializers.ModelSerializer):
     feed_title = serializers.CharField(source='feed.title', read_only=True)
     category = serializers.CharField(source='feed.category.name', read_only=True)
     published_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
-    image = serializers.SerializerMethodField()  # ✅ Champ image dynamique
+    image = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
+    content = serializers.SerializerMethodField()  # Ajout du traitement du contenu
 
     class Meta:
         model = RSSFeedEntry
@@ -32,12 +37,28 @@ class RSSFeedEntrySerializer(serializers.ModelSerializer):
             'category',
             'title',
             'link',
-            'content',
+            'content',       # Remplacé par le champ calculé
             'published_at',
-            'image',  # ✅ Image incluse
+            'image',
             'tags',
         ]
         read_only_fields = ['id', 'feed', 'feed_title', 'category', 'published_at', 'image']
+
+    def get_content(self, obj):
+        """
+        Décodage des entités HTML pour affichage propre.
+        """
+        if not obj.content:
+            return ""
+    
+        # Étape 1 : décoder les entités HTML (&eacute; -> é)
+        decoded = html.unescape(obj.content)
+
+        # Étape 2 : supprimer toutes les balises HTML
+        clean_text = re.sub(r'<[^>]+>', '', decoded)
+
+        return clean_text.strip()
+
         
     def get_tags(self, obj):
         exclude = {
@@ -49,23 +70,26 @@ class RSSFeedEntrySerializer(serializers.ModelSerializer):
         
 
     def get_image(self, obj):
-        """
-        Récupère l'image depuis obj.image, la catégorie ou extrait depuis le content si nécessaire.
-        """
-        # ✅ 1. Si l'image est stockée directement dans l'objet
+        # 1. Image attachée à l'article
         if hasattr(obj, 'image') and obj.image:
             return obj.image.url
 
-        # ✅ 2. Si une image est liée à la catégorie
-        category = obj.feed.category if obj.feed and obj.feed.category else None
-        if category and category.image:
-            return category.image.url
+        # 2. Image aléatoire depuis le dossier de la catégorie
+        if obj.feed and obj.feed.category:
+            category_slug = obj.feed.category.name.lower().replace(" ", "_")
+            category_path = os.path.join(settings.MEDIA_ROOT, 'images', 'categorie', category_slug)
 
-        # ✅ 3. Extraire l'image du champ content via regex
+            if os.path.isdir(category_path):
+                images = [f for f in os.listdir(category_path) if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
+                if images:
+                    chosen = random.choice(images)
+                    return f"{settings.MEDIA_URL}images/categorie/{category_slug}/{chosen}"
+
+        # 3. Extraction via contenu HTML
         if obj.content:
-            match = re.search(r'<img.*?src="(.*?)"', obj.content)
+            match = re.search(r'<img[^>]+src=["\'](.*?)["\']', obj.content)
             if match:
-                return match.group(1)  # L'URL de l'image extraite
+                return match.group(1)
 
-        # 🔴 4. Aucune image trouvée
+        # 4. Aucun fallback
         return None

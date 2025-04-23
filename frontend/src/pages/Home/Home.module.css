@@ -123,3 +123,26 @@
       opacity: 1;
   }
 }
+
+.topWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 2rem;
+  max-width: 1300px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.weatherWrapper {
+  flex: 0 1 300px; /* taille fixe de la météo */
+  display: flex;
+  justify-content: flex-start;
+}
+
+.searchWrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center; /* centre la recherche horizontalement */
+}
