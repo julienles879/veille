@@ -12,12 +12,12 @@ METEO_CONCEPT_TOKEN = config("METEO_CONCEPT_TOKEN")
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-_0w&0e^)#cfp!h3h1yu*wi+!p$%!sp@@&4!-bi%sew-(1xsa0a'
+SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['168.231.106.23', 'julienlesimple.pro']
 
 
 # Application definition
