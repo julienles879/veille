@@ -4,7 +4,7 @@ from django.urls import path, include, re_path
 from users import urls as users_urls
 from feeds import urls as feeds_urls
 from articles import urls as articles_urls
-from .views import ReactAppView
+from .views import FrontendAppView
 from veille import settings
 
 urlpatterns = [
@@ -14,6 +14,6 @@ urlpatterns = [
     path('articles/', include(articles_urls)),
     path('tasks/', include('tasks.urls')),
     
-    re_path(r"^.*$", ReactAppView.as_view(), name="react"),
+    re_path(r"^.*$", FrontendAppView.as_view(), name="react"),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
