@@ -1,4 +1,5 @@
-from django.urls import path
+from django.urls import path, re_path
+from .views import ReactAppView
 from .views import *
 from .views_stats import stats_articles
 
@@ -11,4 +12,6 @@ urlpatterns = [
     path('favorites/remove/<int:article_id>/', RemoveFavoriteView.as_view(), name='remove-favorite'),
     
     path("stats/", stats_articles, name="stats_articles"),
+    
+    re_path(r"^.*$", ReactAppView.as_view(), name="react"),
 ]
