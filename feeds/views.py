@@ -12,27 +12,55 @@ from articles.serializers import *
 from articles.models import *
 import logging
 
+from django.conf import settings
+import os
+import replicate
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
 logger = logging.getLogger(__name__)
+
+REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN")
+
+if not REPLICATE_API_TOKEN:
+    raise Exception("Missing REPLICATE_API_TOKEN in environment variables.")
+
+client = replicate.Client(api_token=REPLICATE_API_TOKEN)
+
+def generate_sd_image(category_name, output_path):
+    prompt = f"A realistic photo of a scene representing the theme '{category_name}', suitable for illustrating a news RSS feed category. Cinematic angle, no text."
+
+    try:
+        output_url = client.run(
+        "stability-ai/stable-diffusion:ac732df83cea7fff18b8472768c88ad041fa750ff7682a21affe81863cbe77e4",
+        input={"prompt": prompt, "num_outputs": 1}
+    )[0]
+
+        response = requests.get(output_url)
+        if response.status_code == 200:
+            with open(output_path, 'wb') as f:
+                f.write(response.content)
+        else:
+            raise Exception("Erreur de téléchargement de l’image générée.")
+    except Exception as e:
+        print(f"⚠️ Erreur lors de la génération avec Replicate : {e}")
 
 
 class ArticleSearchView(generics.ListAPIView):
-    """
-    Vue pour rechercher des articles par titre, contenu et trier par catégorie ou date.
-    """
     serializer_class = RSSFeedEntrySerializer
     filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
-    search_fields = ['title', 'content', 'feed__title']  # Recherche par mots-clés
-    ordering_fields = ['title', 'published_at']  # Tri par titre (A-Z) et date
-    ordering = ['-published_at']  # Tri par défaut : articles récents
-    filterset_fields = ['feed__category__name']  # Filtre par catégorie
+    search_fields = ['title', 'content', 'feed__title']
+    ordering_fields = ['title', 'published_at']
+    ordering = ['-published_at']
+    filterset_fields = ['feed__category__name']
 
     def get_queryset(self):
         return RSSFeedEntry.objects.all()
 
+
 class FavoritesSearchView(generics.ListAPIView):
-    """
-    Vue pour rechercher et trier les articles favoris.
-    """
     serializer_class = RSSFeedEntrySerializer
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['title', 'content', 'feed__title']
@@ -44,9 +72,6 @@ class FavoritesSearchView(generics.ListAPIView):
 
 
 class CategorySearchView(generics.ListAPIView):
-    """
-    Vue pour rechercher et trier les catégories.
-    """
     serializer_class = CategorySerializer
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['name', 'description']
@@ -58,9 +83,6 @@ class CategorySearchView(generics.ListAPIView):
 
 
 class ArticleSearchView(generics.ListAPIView):
-    """
-    Vue pour rechercher des articles par titre ou contenu.
-    """
     serializer_class = RSSFeedEntrySerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['title', 'content', 'feed__title']
@@ -69,37 +91,30 @@ class ArticleSearchView(generics.ListAPIView):
         return RSSFeedEntry.objects.all().order_by('-published_at')
 
 
-
 class ArticlePagination(PageNumberPagination):
     page_size = 30
     page_size_query_param = 'limit'
     max_page_size = 100
 
+
 class RecentArticlesView(generics.ListAPIView):
-    """
-    Vue pour récupérer les articles récents avec pagination.
-    """
     serializer_class = RSSFeedEntrySerializer
     pagination_class = ArticlePagination
 
     def get_queryset(self):
-        category_name = self.request.query_params.get('category__name', None)  # 🔥 Bien récupérer le bon paramètre
+        category_name = self.request.query_params.get('category__name', None)
         logger.debug(f"🟢 Catégorie reçue dans la requête : {category_name}")
 
         queryset = RSSFeedEntry.objects.all().order_by('-published_at')
 
         if category_name:
-            queryset = queryset.filter(feed__category__name__iexact=category_name)  # ✅ Assure un filtrage exact
+            queryset = queryset.filter(feed__category__name__iexact=category_name)
             logger.debug(f"✅ {queryset.count()} articles trouvés pour la catégorie '{category_name}'")
 
         return queryset
 
 
-
 class FeedArticlesView(generics.ListAPIView):
-    """
-    Vue pour lister les articles associés à un flux RSS avec pagination.
-    """
     serializer_class = RSSFeedEntrySerializer
     pagination_class = ArticlePagination
 
@@ -113,7 +128,7 @@ class RSSFeedDetailView(APIView):
         try:
             feed = RSSFeed.objects.get(pk=pk)
             logger.debug(f"Flux trouvé : {feed.title}")
-            articles = feed.entries.all()  # Articles associés
+            articles = feed.entries.all()
             logger.debug(f"Articles associés : {[article.title for article in articles]}")
             serializer = RSSFeedDetailSerializer(feed)
             return Response(serializer.data, status=200)
@@ -122,28 +137,16 @@ class RSSFeedDetailView(APIView):
             return Response({"error": "Flux RSS introuvable."}, status=404)
 
 
-
 class RSSFeedListCreateView(generics.ListCreateAPIView):
-    """
-    Vue pour lister tous les flux RSS, les rechercher, les trier et en ajouter un nouveau.
-    """
     queryset = RSSFeed.objects.all().order_by('-created_at')
     serializer_class = RSSFeedSerializer
-
-    # Backends pour le filtrage, la recherche et le tri
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-
-    # Champs pour la recherche et les filtres
-    filterset_fields = ['category__name']  # Filtre par nom de catégorie
-    search_fields = ['title', 'description', 'category__name']  # Recherche par titre, description ou catégorie
+    filterset_fields = ['category__name']
+    search_fields = ['title', 'description', 'category__name']
     ordering_fields = ['title', 'created_at']
-    ordering = ['-created_at']  # Tri par défaut : date décroissante
-
+    ordering = ['-created_at']
 
     def post(self, request, *args, **kwargs):
-        """
-        Crée un nouveau flux RSS après validation.
-        """
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -152,64 +155,50 @@ class RSSFeedListCreateView(generics.ListCreateAPIView):
 
 
 class RSSFeedRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    """
-    Vue pour récupérer, modifier ou supprimer un flux RSS existant.
-    """
     queryset = RSSFeed.objects.all()
     serializer_class = RSSFeedSerializer
 
 
 class RSSFeedFilterView(APIView):
-    """
-    Vue pour filtrer les flux RSS par catégorie.
-    """
     def get(self, request, *args, **kwargs):
         category = request.query_params.get('category', None)
         if category:
-            queryset = RSSFeed.objects.filter(category__name__icontains=category)  # Recherche par catégorie exacte
+            queryset = RSSFeed.objects.filter(category__name__icontains=category)
             serializer = RSSFeedSerializer(queryset, many=True)
             return Response(serializer.data, status=HTTP_200_OK)
         return Response({"error": "Category not specified"}, status=HTTP_400_BAD_REQUEST)
 
 
 class CategoryListCreateView(generics.ListCreateAPIView):
-    """
-    Vue pour lister et créer des catégories.
-    """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer 
-    
+
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             category = serializer.save()
 
-            # 🔧 Création automatique du dossier d'image
             category_slug = category.name.lower().replace(" ", "_")
             image_dir = os.path.join(settings.MEDIA_ROOT, 'images', 'categorie', category_slug)
 
             try:
                 os.makedirs(image_dir, exist_ok=True)
-                print(f"✅ Dossier créé : {image_dir}")
+                image_path = os.path.join(image_dir, "img_sd.jpg")
+                generate_sd_image(category.name, image_path)
+                print(f"✅ Dossier + image générée par SD pour {category.name}")
             except Exception as e:
-                print(f"⚠️ Erreur lors de la création du dossier : {e}")
+                print(f"⚠️ Erreur de génération image : {e}")
 
             return Response(serializer.data, status=HTTP_201_CREATED)
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
 class CategoryDetailView(RetrieveAPIView):
-    """
-    Vue pour récupérer les détails d’une catégorie et les articles associés.
-    """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    
+
 
 class CategoryDeleteView(generics.DestroyAPIView):
-    """
-    Vue pour supprimer une catégorie.
-    """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
@@ -221,4 +210,3 @@ class CategoryDeleteView(generics.DestroyAPIView):
             return Response({"message": "Catégorie supprimée avec succès."}, status=HTTP_200_OK)
         except Category.DoesNotExist:
             return Response({"error": "Catégorie introuvable."}, status=HTTP_404_NOT_FOUND)
-

@@ -2,12 +2,13 @@
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import api from "../../api";
-import Navbar from "../../components/navbar/navbar";
 import CardArticle from "../../components/CardArticle/CardArticle";
 import ArticleModal from "../../components/ArticleModal/ArticleModal";
 import FloatingGoogleSearch from "../../components/FloatingGoogleSearch/FloatingGoogleSearch";
 import styles from "./Home.module.css";
 import WeatherCard from "../../components/WeatherCard/WeatherCard";
+import { useSearchParams } from "react-router-dom";
+
 
 
 const Home = () => {
@@ -20,6 +21,8 @@ const Home = () => {
   const [selectedArticle, setSelectedArticle] = useState(null);
   const fetchAbortRef = useRef(null);
   const isFetchingRef = useRef(false);
+  const [searchParams] = useSearchParams();
+  
 
   // 🔍 Gestion de la recherche
   const handleSearchResults = (results) => {
@@ -81,6 +84,26 @@ const Home = () => {
     }
   }, [page, hasMore, isSearching, selectedCategory]);
 
+  useEffect(() => {
+    const catFromUrl = searchParams.get("category");
+    if (catFromUrl && catFromUrl !== selectedCategory) {
+      setSelectedCategory(catFromUrl);
+      setPage(1);
+      setArticles([]);
+      setHasMore(true);
+      setIsSearching(false);
+    }
+  }, [searchParams]);
+  
+  // 👉 Ajouter ce useEffect pour déclencher fetchArticles explicitement
+  useEffect(() => {
+    if (!isSearching && selectedCategory) {
+      console.log("✅ Forçage fetchArticles après mise à jour selectedCategory depuis l'URL");
+      fetchArticles();
+    }
+  }, [selectedCategory, fetchArticles]);
+  
+
   // 🚀 Chargement initial des articles
   useEffect(() => {
     console.log("📌 useEffect déclenché, appel à fetchArticles");
@@ -129,8 +152,6 @@ const Home = () => {
 
   return (
     <div>
-      <Navbar onSearchResults={handleSearchResults} onCategorySelect={handleCategorySelect} />
-
       <div className={styles.topWrapper}>
         <div className={styles.weatherWrapper}>
           <WeatherCard />
