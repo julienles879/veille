@@ -4,6 +4,7 @@
 FROM node:20 AS frontend
 WORKDIR /app
 COPY frontend/ ./frontend/
+COPY frontend/.env ./frontend/.env
 RUN cd frontend \
     && npm install \
     && npm run build
