@@ -2,10 +2,16 @@
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import api from "../../api";
-import Navbar from "../../components/navbar/navbar";
 import CardArticle from "../../components/CardArticle/CardArticle";
 import ArticleModal from "../../components/ArticleModal/ArticleModal";
+import FloatingGoogleSearch from "../../components/FloatingGoogleSearch/FloatingGoogleSearch";
 import styles from "./Home.module.css";
+import WeatherCard from "../../components/WeatherCard/WeatherCard";
+import EmptyCard from "../../components/EmptyCard/EmptyCard";
+
+import { useSearchParams } from "react-router-dom";
+
+
 
 const Home = () => {
   const [articles, setArticles] = useState([]);
@@ -17,6 +23,8 @@ const Home = () => {
   const [selectedArticle, setSelectedArticle] = useState(null);
   const fetchAbortRef = useRef(null);
   const isFetchingRef = useRef(false);
+  const [searchParams] = useSearchParams();
+  
 
   // 🔍 Gestion de la recherche
   const handleSearchResults = (results) => {
@@ -78,6 +86,26 @@ const Home = () => {
     }
   }, [page, hasMore, isSearching, selectedCategory]);
 
+  useEffect(() => {
+    const catFromUrl = searchParams.get("category");
+    if (catFromUrl && catFromUrl !== selectedCategory) {
+      setSelectedCategory(catFromUrl);
+      setPage(1);
+      setArticles([]);
+      setHasMore(true);
+      setIsSearching(false);
+    }
+  }, [searchParams]);
+  
+  // 👉 Ajouter ce useEffect pour déclencher fetchArticles explicitement
+  useEffect(() => {
+    if (!isSearching && selectedCategory) {
+      console.log("✅ Forçage fetchArticles après mise à jour selectedCategory depuis l'URL");
+      fetchArticles();
+    }
+  }, [selectedCategory, fetchArticles]);
+  
+
   // 🚀 Chargement initial des articles
   useEffect(() => {
     console.log("📌 useEffect déclenché, appel à fetchArticles");
@@ -126,12 +154,25 @@ const Home = () => {
 
   return (
     <div>
-      <Navbar onSearchResults={handleSearchResults} onCategorySelect={handleCategorySelect} />
+      <div className={styles.topWrapper}>
+        <div className={styles.weatherWrapper}>
+          <WeatherCard />
+        </div>
+        <div className={styles.searchWrapper}>
+          <FloatingGoogleSearch />
+        </div>
+        <div className={styles.weatherWrapper}>
+          <EmptyCard />
+        </div>
+      </div>
+
 
       <div className={styles.homeContainer}>
-        <h1 className={styles.pageTitle}>
+        {/* <h1 className={styles.pageTitle}>
           Articles {selectedCategory ? `de la catégorie ${selectedCategory}` : "Récents"}
-        </h1>
+        </h1> */}
+
+        
 
         <div className={styles.articlesGrid}>
           {articles.length > 0 ? (
@@ -149,7 +190,10 @@ const Home = () => {
 
       {/* ✅ Affichage de la modale si un article est sélectionné */}
       {selectedArticle && <ArticleModal article={selectedArticle} onClose={handleCloseModal} />}
+
+
     </div>
+    
   );
 };
 

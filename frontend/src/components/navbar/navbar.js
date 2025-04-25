@@ -1,19 +1,31 @@
+// src/components/navbar/navbar.js
 import React, { useState, useEffect } from "react";
-import { FiSettings, FiMoreHorizontal, FiSearch, FiRefreshCw } from "react-icons/fi";
-import SettingsModal from "../SettingsModal/SettingsModal"; // ✅ Import du modal
+import {
+  FiSettings,
+  FiMoreHorizontal,
+  FiSearch,
+  FiRefreshCw,
+  FiBarChart2,
+} from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+import SettingsModal from "../SettingsModal/SettingsModal";
 import styles from "./navbar.module.css";
 import api from "../../api";
+import { Link } from "react-router-dom";
 
-const Navbar = ({ onSearchResults, onCategorySelect }) => {
+const Navbar = ({ onSearchResults }) => {
   const [categories, setCategories] = useState([]);
   const [visibleCategories, setVisibleCategories] = useState([]);
   const [overflowCategories, setOverflowCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const navigate = useNavigate();
+
   // 🔄 Charger les catégories au montage
   useEffect(() => {
-    api.get("/feeds/categories/")
+    api
+      .get("/feeds/categories/")
       .then((response) => {
         if (!Array.isArray(response.data.results)) {
           console.error("Données de catégories invalides :", response.data);
@@ -24,7 +36,9 @@ const Navbar = ({ onSearchResults, onCategorySelect }) => {
         setVisibleCategories(response.data.results.slice(0, maxVisible));
         setOverflowCategories(response.data.results.slice(maxVisible));
       })
-      .catch((error) => console.error("Erreur lors du chargement des catégories :", error));
+      .catch((error) =>
+        console.error("Erreur lors du chargement des catégories :", error)
+      );
   }, []);
 
   // 🔍 Gérer la recherche
@@ -33,35 +47,58 @@ const Navbar = ({ onSearchResults, onCategorySelect }) => {
     if (!onSearchResults) return;
 
     if (query.trim()) {
-      api.get(`/feeds/articles/search/?search=${query}`)
+      api
+        .get(`/feeds/articles/search/?search=${query}`)
         .then((response) => onSearchResults(response.data))
-        .catch((error) => console.error("Erreur lors de la recherche :", error));
+        .catch((error) =>
+          console.error("Erreur lors de la recherche :", error)
+        );
     } else {
-      api.get(`/feeds/articles/recent/?limit=30`)
+      api
+        .get(`/feeds/articles/recent/?limit=30`)
         .then((response) => onSearchResults(response.data))
-        .catch((error) => console.error("Erreur lors du rechargement des articles :", error));
+        .catch((error) =>
+          console.error("Erreur lors du rechargement des articles :", error)
+        );
     }
+  };
+
+  // 📂 Gestion du clic sur une catégorie
+  const handleCategoryClick = (categoryName) => {
+    navigate(`/?category=${encodeURIComponent(categoryName)}`);
+  };
+
+  // 🔄 Bouton "recharger"
+  const handleReloadClick = () => {
+    navigate("/");
   };
 
   return (
     <>
       <nav className={styles.navbar}>
-        {/* 🔄 Bouton Recharger */}
-        <button className={styles.iconButton} onClick={() => onCategorySelect(null)} title="Recharger">
+        {/* 🔄 Recharger */}
+        <button
+          className={styles.iconButton}
+          onClick={handleReloadClick}
+          title="Recharger"
+        >
           <FiRefreshCw />
         </button>
 
-        {/* 📂 Catégories */}
+        {/* 📂 Catégories visibles */}
         <ul className={styles.navList}>
           {visibleCategories.map((cat) => (
             <li key={cat.id} className={styles.navItem}>
-              <button className={styles.navLink} onClick={() => onCategorySelect(cat.name)}>
+              <button
+                className={styles.navLink}
+                onClick={() => handleCategoryClick(cat.name)}
+              >
                 {cat.name}
               </button>
             </li>
           ))}
 
-          {/* 🔽 Menu déroulant pour afficher les catégories supplémentaires */}
+          {/* 🔽 Catégories overflow */}
           {overflowCategories.length > 0 && (
             <li className={`${styles.navItem} ${styles.dropdownContainer}`}>
               <button className={styles.iconButton}>
@@ -69,10 +106,10 @@ const Navbar = ({ onSearchResults, onCategorySelect }) => {
               </button>
               <div className={styles.dropdownMenu}>
                 {overflowCategories.map((cat) => (
-                  <button 
-                    key={cat.id} 
-                    className={styles.dropdownItem} 
-                    onClick={() => onCategorySelect(cat.name)}
+                  <button
+                    key={cat.id}
+                    className={styles.dropdownItem}
+                    onClick={() => handleCategoryClick(cat.name)}
                   >
                     {cat.name}
                   </button>
@@ -96,7 +133,12 @@ const Navbar = ({ onSearchResults, onCategorySelect }) => {
           </button>
         </div>
 
-        {/* ⚙️ Bouton Paramètres → Ouvre le modal */}
+        {/* 📊 Statistiques */}
+        <Link to="/stats" className={styles.iconButton} title="Statistiques">
+          <FiBarChart2 />
+        </Link>
+
+        {/* ⚙️ Paramètres */}
         <button
           className={styles.iconButton}
           title="Paramètres"
@@ -106,7 +148,7 @@ const Navbar = ({ onSearchResults, onCategorySelect }) => {
         </button>
       </nav>
 
-      {/* ✅ Affichage du modal si ouvert */}
+      {/* ⚙️ Modal de paramètres */}
       {isModalOpen && <SettingsModal onClose={() => setIsModalOpen(false)} />}
     </>
   );

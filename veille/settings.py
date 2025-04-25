@@ -1,9 +1,12 @@
 import os
 from pathlib import Path
+from decouple import config
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+METEO_CONCEPT_TOKEN = config("METEO_CONCEPT_TOKEN")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -150,3 +153,7 @@ AUTH_USER_MODEL = 'users.User'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Adresse du serveur React
 ]
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
