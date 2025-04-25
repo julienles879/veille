@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "./WeatherCard.module.css";
+import api from "../../api"; // ✅ Import de l'instance Axios
+
 function getWeatherIcon(code) {
     const icons = {
         0: "☀️",   // Soleil
@@ -34,68 +36,64 @@ function getWeatherIcon(code) {
 
         100: "❓", // Indéterminé ou inconnu
     };
-
     return icons[code] || "❓";
     }
-    
 
-function WeatherCard() {
-const [weather, setWeather] = useState(null);
-const [error, setError] = useState(null);
+    function WeatherCard() {
+    const [weather, setWeather] = useState(null);
+    const [error, setError] = useState(null);
 
-useEffect(() => {
-    if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-        async (position) => {
-        const { latitude, longitude } = position.coords;
+    useEffect(() => {
+        if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+            const { latitude, longitude } = position.coords;
+            try {
+                // Étape 1 : récupérer la ville avec Nominatim
+                const locationRes = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+                );
+                const locationData = await locationRes.json();
+                const city =
+                locationData.address.city ||
+                locationData.address.town ||
+                locationData.address.village ||
+                locationData.address.county;
 
-        try {
-            // Étape 1 : récupérer la ville avec Nominatim
-            const locationRes = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
-            );
-            const locationData = await locationRes.json();
-            const city = locationData.address.city ||
-                        locationData.address.town ||
-                        locationData.address.village ||
-                        locationData.address.county;
+                if (!city) {
+                setError("Ville non reconnue");
+                return;
+                }
 
-            if (!city) {
-            setError("Ville non reconnue");
-            return;
+                // Étape 2 : requête météo via l'instance Axios
+                const weatherRes = await api.get(`/tasks/meteo/?city=${city}`);
+                const weatherData = weatherRes.data;
+
+                if (weatherData.error) {
+                setError(weatherData.error);
+                } else {
+                setWeather(weatherData);
+                }
+            } catch (err) {
+                console.error("Erreur lors de la géolocalisation météo :", err);
+                setError("Erreur météo");
             }
-
-            // Étape 2 : récupérer la météo avec ta propre API
-            const weatherRes = await fetch(`/tasks/meteo/?city=${city}`)
-            const weatherData = await weatherRes.json();
-
-            if (weatherData.error) {
-            setError(weatherData.error);
-            } else {
-            setWeather(weatherData);
+            },
+            (err) => {
+            console.error("Refus de géolocalisation :", err);
+            setError("Localisation refusée");
             }
-        } catch (err) {
-            console.error("Erreur lors de la géolocalisation météo :", err);
-            setError("Erreur météo");
+        );
+        } else {
+        setError("Géolocalisation non supportée");
         }
-        },
-        (err) => {
-        console.error("Refus de géolocalisation :", err);
-        setError("Localisation refusée");
-        }
-    );
-    } else {
-    setError("Géolocalisation non supportée");
-    }
-}, []);
+    }, []);
 
-if (error) return <div className="weatherCard error">🌧️ {error}</div>;
-if (!weather) return <div className="weatherCard loading">Chargement météo...</div>;
+    if (error) return <div className="weatherCard error">🌧️ {error}</div>;
+    if (!weather) return <div className="weatherCard loading">Chargement météo...</div>;
 
-return (
-    <div className={styles.weatherCard}>
-    {weather ? (
-        <>
+    return (
+        <div className={styles.weatherCard}>
         <div className={styles.icon}>{getWeatherIcon(weather.weather)}</div>
         <div className={styles.city}>📍 {weather.city}</div>
         <div className={styles.temperature}>
@@ -104,14 +102,8 @@ return (
         <div className={styles.date}>
             Prévision du {new Date(weather.datetime).toLocaleDateString()}
         </div>
-        </>
-    ) : error ? (
-        <div className={styles.error}>🌧️ {error}</div>
-    ) : (
-        <div className={styles.loading}>Chargement météo...</div>
-    )}
-    </div>
-);
-}      
+        </div>
+    );
+}
 
 export default WeatherCard;

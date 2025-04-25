@@ -1,17 +1,18 @@
-//src
-
 import React, { useEffect, useState } from "react";
 import CardArticle from "../CadArticle/CardArticle";
-import styles from "./ArticlesList.module.css"; // ✅ Import du fichier CSS modulaire
+import styles from "./ArticlesList.module.css";
+import api from "../../api"; // ✅ Import de l'instance axios
 
 const ArticlesList = () => {
   const [articles, setArticles] = useState([]);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/articles/")
-      .then((res) => res.json())
-      .then((data) => setArticles(data))
-      .catch((err) => console.error("Erreur lors du chargement des articles :", err));
+    api
+      .get("/articles/")
+      .then((res) => setArticles(res.data))
+      .catch((err) =>
+        console.error("Erreur lors du chargement des articles :", err)
+      );
   }, []);
 
   return (

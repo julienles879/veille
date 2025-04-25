@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Bar, Pie, Line } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, PointElement, LineElement, ArcElement, Tooltip, Legend } from "chart.js";
+import api from "../../api"; // ✅ import d'axios instance
 import styles from "./Stats.module.css";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, ArcElement, Tooltip, Legend);
@@ -9,10 +10,11 @@ const Stats = () => {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    fetch("/articles/stats/")
-      .then(res => res.json())
-      .then(setData)
-      .catch(console.error);
+    api.get("/articles/stats/")
+      .then(res => setData(res.data))
+      .catch(err => {
+        console.error("Erreur de récupération des statistiques :", err);
+      });
   }, []);
 
   if (!data) return (
@@ -42,7 +44,6 @@ const Stats = () => {
       }
     ]
   };
-  
 
   const fluxData = {
     labels: data.articles_par_flux.map(entry => entry["feed__title"]),

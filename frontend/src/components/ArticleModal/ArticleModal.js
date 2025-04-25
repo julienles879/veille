@@ -1,37 +1,33 @@
 import React, { useState, useEffect } from "react";
 import styles from "./ArticleModal.module.css";
+import api from "../../api";
 
 const ArticleModal = ({ article, onClose }) => {
   const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:8000/articles/favorites/`)
-      .then((response) => response.json())
-      .then((favorites) => {
-        const isAlreadyFavorite = favorites.some((fav) => fav.id === article.id);
+    api
+      .get("/articles/favorites/")
+      .then((response) => {
+        const isAlreadyFavorite = response.data.some((fav) => fav.id === article.id);
         setIsFavorite(isAlreadyFavorite);
       })
-      .catch((error) => console.error("Erreur de récupération des favoris :", error));
+      .catch((error) =>
+        console.error("Erreur de récupération des favoris :", error)
+      );
   }, [article.id]);
 
   const toggleFavorite = async () => {
-    const apiUrl = isFavorite
-      ? `http://127.0.0.1:8000/articles/favorites/remove/${article.id}/`
-      : `http://127.0.0.1:8000/articles/favorites/add/`;
-
-    const method = isFavorite ? "DELETE" : "POST";
-    const body = isFavorite ? null : JSON.stringify({ article_id: article.id });
-
     try {
-      const response = await fetch(apiUrl, {
-        method: method,
-        headers: { "Content-Type": "application/json" },
-        body: body,
-      });
-
-      if (response.ok) {
-        setIsFavorite(!isFavorite);
+      if (isFavorite) {
+        await api.delete(`/articles/favorites/remove/${article.id}/`);
+      } else {
+        await api.post(`/articles/favorites/add/`, {
+          article_id: article.id,
+        });
       }
+
+      setIsFavorite(!isFavorite);
     } catch (error) {
       console.error("Erreur réseau :", error);
     }
@@ -47,7 +43,6 @@ const ArticleModal = ({ article, onClose }) => {
         <p className={styles.category}>📂 Catégorie : {article.category || "Non spécifiée"}</p>
         <p className={styles.feed}>📰 Source : {article.feed_title || "Inconnue"}</p>
 
-        {/* 🏷️ Affichage des tags */}
         <div className={styles.tagsContainer}>
           {article.tags && article.tags.length > 0 ? (
             article.tags.map((tag, index) => (
@@ -83,7 +78,12 @@ const ArticleModal = ({ article, onClose }) => {
           {isFavorite ? "❤️ Retirer des favoris" : "🤍 Ajouter aux favoris"}
         </button>
 
-        <a href={article.link} target="_blank" rel="noopener noreferrer" className={styles.articleLink}>
+        <a
+          href={article.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.articleLink}
+        >
           Lire l'article original ➔
         </a>
       </div>
