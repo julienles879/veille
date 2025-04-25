@@ -3,6 +3,7 @@ services:
     build: .
     env_file: .env
     volumes:
+      - ./db.sqlite3:/app/db.sqlite3
       - ./media:/app/veille/media
       - ./staticfiles:/app/veille/staticfiles
     ports:

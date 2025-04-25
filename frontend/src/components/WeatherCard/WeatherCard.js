@@ -66,7 +66,7 @@ useEffect(() => {
             }
 
             // Étape 2 : récupérer la météo avec ta propre API
-            const weatherRes = await fetch(`http://localhost:8000/tasks/meteo/?city=${city}`)
+            const weatherRes = await fetch(`/tasks/meteo/?city=${city}`)
             const weatherData = await weatherRes.json();
 
             if (weatherData.error) {
