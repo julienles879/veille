@@ -5,11 +5,14 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_2
 from rest_framework.filters import OrderingFilter, SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django.utils.timezone import now
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+
 from .models import *
 from .serializers import *
 
 
-class UpdateLastViewedView(APIView):
+class UpdateLastViewedView(LoginRequiredMixin, APIView):
     """
     Vue pour mettre à jour la dernière consultation d'un article.
     """
@@ -25,7 +28,7 @@ class UpdateLastViewedView(APIView):
             return Response({"error": "Article not found."}, status=HTTP_404_NOT_FOUND)
 
 
-class FavoriteListView(APIView):
+class FavoriteListView(LoginRequiredMixin, APIView):
     """
     Vue pour lister les favoris.
     """
@@ -35,7 +38,7 @@ class FavoriteListView(APIView):
         serializer = RSSFeedEntrySerializer(articles, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-class AddFavoriteView(APIView):
+class AddFavoriteView(LoginRequiredMixin, APIView):
     def post(self, request, *args, **kwargs):
         print("🚀 Requête reçue :", request.data)  # 🛠 Voir les données reçues
         article_id = request.data.get('article_id')
@@ -55,7 +58,7 @@ class AddFavoriteView(APIView):
             print("❌ Article non trouvé :", article_id)
             return Response({"error": "Article not found."}, status=status.HTTP_404_NOT_FOUND)
 
-class RemoveFavoriteView(APIView):
+class RemoveFavoriteView(LoginRequiredMixin, APIView):
     """
     Vue pour supprimer un favori.
     """
@@ -69,7 +72,7 @@ class RemoveFavoriteView(APIView):
             return Response({"error": "Favorite not found."}, status=status.HTTP_404_NOT_FOUND)
 
 
-class RSSFeedEntryListView(generics.ListAPIView):
+class RSSFeedEntryListView(LoginRequiredMixin, generics.ListAPIView):
     """
     Vue pour lister, filtrer, trier et rechercher les articles.
     """
@@ -91,7 +94,7 @@ class RSSFeedEntryListView(generics.ListAPIView):
 
 
 
-class RSSFeedEntryDetailView(generics.RetrieveAPIView):
+class RSSFeedEntryDetailView(LoginRequiredMixin, generics.RetrieveAPIView):
     """
     Vue pour récupérer les détails d’un article spécifique.
     """
@@ -99,7 +102,7 @@ class RSSFeedEntryDetailView(generics.RetrieveAPIView):
     serializer_class = RSSFeedEntrySerializer
 
 
-class RSSFeedEntryFilterView(generics.ListAPIView):
+class RSSFeedEntryFilterView(LoginRequiredMixin, generics.ListAPIView):
     """
     Vue pour filtrer les articles par flux RSS, catégorie ou période.
     """

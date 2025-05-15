@@ -6,6 +6,7 @@ import {
   FiSearch,
   FiRefreshCw,
   FiBarChart2,
+  FiLogOut
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import SettingsModal from "../SettingsModal/SettingsModal";
@@ -73,6 +74,12 @@ const Navbar = ({ onSearchResults }) => {
     navigate("/");
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("isAuthenticated");  // ✅ déconnecter côté front
+    navigate("/login");                          // ✅ rediriger vers login
+};
+
+
   return (
     <>
       <nav className={styles.navbar}>
@@ -137,6 +144,14 @@ const Navbar = ({ onSearchResults }) => {
         <Link to="/stats" className={styles.iconButton} title="Statistiques">
           <FiBarChart2 />
         </Link>
+
+        <button
+            className={styles.iconButton}
+            title="Se déconnecter"
+            onClick={handleLogout}
+        >
+            <FiLogOut />
+        </button>
 
         {/* ⚙️ Paramètres */}
         <button

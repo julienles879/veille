@@ -6,9 +6,11 @@ from articles.tasks import fetch_articles_for_feeds
 import requests
 from rest_framework.decorators import api_view
 from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-class ManualRSSUpdateView(APIView):
+
+class ManualRSSUpdateView(LoginRequiredMixin, APIView):
     """
     Vue pour déclencher manuellement la récupération des flux RSS.
     """
@@ -101,17 +103,3 @@ def get_city_from_coords(request):
 
     except Exception as e:
         return Response({"error": str(e)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
-class ManualRSSUpdateView(APIView):
-    """
-    Vue pour déclencher manuellement la récupération des flux RSS.
-    """
-    def post(self, request, *args, **kwargs):
-        try:
-            # Appelle la tâche qui synchronise les articles
-            fetch_articles_for_feeds()
-            return Response({"message": "Mise à jour des flux RSS déclenchée avec succès."}, status=HTTP_200_OK)
-        except Exception as e:
-            return Response({"error": str(e)}, status=HTTP_500_INTERNAL_SERVER_ERROR)

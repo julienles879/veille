@@ -17,6 +17,8 @@ import os
 import replicate
 import requests
 from dotenv import load_dotenv
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 load_dotenv()
 
@@ -48,7 +50,7 @@ def generate_sd_image(category_name, output_path):
         print(f"⚠️ Erreur lors de la génération avec Replicate : {e}")
 
 
-class ArticleSearchView(generics.ListAPIView):
+class ArticleSearchView(LoginRequiredMixin, generics.ListAPIView):
     serializer_class = RSSFeedEntrySerializer
     filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
     search_fields = ['title', 'content', 'feed__title']
@@ -60,7 +62,7 @@ class ArticleSearchView(generics.ListAPIView):
         return RSSFeedEntry.objects.all()
 
 
-class FavoritesSearchView(generics.ListAPIView):
+class FavoritesSearchView(LoginRequiredMixin, generics.ListAPIView):
     serializer_class = RSSFeedEntrySerializer
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['title', 'content', 'feed__title']
@@ -71,7 +73,7 @@ class FavoritesSearchView(generics.ListAPIView):
         return RSSFeedEntry.objects.filter(favorited_by__isnull=False).order_by('-published_at')
 
 
-class CategorySearchView(generics.ListAPIView):
+class CategorySearchView(LoginRequiredMixin, generics.ListAPIView):
     serializer_class = CategorySerializer
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['name', 'description']
@@ -82,7 +84,7 @@ class CategorySearchView(generics.ListAPIView):
         return Category.objects.all()
 
 
-class ArticleSearchView(generics.ListAPIView):
+class ArticleSearchView(LoginRequiredMixin, generics.ListAPIView):
     serializer_class = RSSFeedEntrySerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['title', 'content', 'feed__title']
@@ -97,7 +99,7 @@ class ArticlePagination(PageNumberPagination):
     max_page_size = 100
 
 
-class RecentArticlesView(generics.ListAPIView):
+class RecentArticlesView(LoginRequiredMixin, generics.ListAPIView):
     serializer_class = RSSFeedEntrySerializer
     pagination_class = ArticlePagination
 
@@ -114,7 +116,7 @@ class RecentArticlesView(generics.ListAPIView):
         return queryset
 
 
-class FeedArticlesView(generics.ListAPIView):
+class FeedArticlesView(LoginRequiredMixin, generics.ListAPIView):
     serializer_class = RSSFeedEntrySerializer
     pagination_class = ArticlePagination
 
@@ -123,7 +125,7 @@ class FeedArticlesView(generics.ListAPIView):
         return RSSFeedEntry.objects.filter(feed_id=feed_id).order_by('-published_at')
 
 
-class RSSFeedDetailView(APIView):
+class RSSFeedDetailView(LoginRequiredMixin, APIView):
     def get(self, request, pk, *args, **kwargs):
         try:
             feed = RSSFeed.objects.get(pk=pk)
@@ -137,7 +139,7 @@ class RSSFeedDetailView(APIView):
             return Response({"error": "Flux RSS introuvable."}, status=404)
 
 
-class RSSFeedListCreateView(generics.ListCreateAPIView):
+class RSSFeedListCreateView(LoginRequiredMixin, generics.ListCreateAPIView):
     queryset = RSSFeed.objects.all().order_by('-created_at')
     serializer_class = RSSFeedSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
@@ -154,12 +156,12 @@ class RSSFeedListCreateView(generics.ListCreateAPIView):
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
-class RSSFeedRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+class RSSFeedRetrieveUpdateDeleteView(LoginRequiredMixin, generics.RetrieveUpdateDestroyAPIView):
     queryset = RSSFeed.objects.all()
     serializer_class = RSSFeedSerializer
 
 
-class RSSFeedFilterView(APIView):
+class RSSFeedFilterView(LoginRequiredMixin, APIView):
     def get(self, request, *args, **kwargs):
         category = request.query_params.get('category', None)
         if category:
@@ -169,7 +171,7 @@ class RSSFeedFilterView(APIView):
         return Response({"error": "Category not specified"}, status=HTTP_400_BAD_REQUEST)
 
 
-class CategoryListCreateView(generics.ListCreateAPIView):
+class CategoryListCreateView(LoginRequiredMixin, generics.ListCreateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer 
 
@@ -193,12 +195,12 @@ class CategoryListCreateView(generics.ListCreateAPIView):
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
-class CategoryDetailView(RetrieveAPIView):
+class CategoryDetailView(LoginRequiredMixin, RetrieveAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
-class CategoryDeleteView(generics.DestroyAPIView):
+class CategoryDeleteView(LoginRequiredMixin, generics.DestroyAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 

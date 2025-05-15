@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 import json
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 User = get_user_model()
 
@@ -56,13 +57,13 @@ class LoginView(View):
             return JsonResponse({'error': str(e)}, status=500)
 
 @method_decorator(csrf_exempt, name='dispatch')
-class LogoutView(View):
+class LogoutView(LoginRequiredMixin, View):
     def post(self, request):
         logout(request)
         return JsonResponse({'success': 'Déconnexion réussie.'})
 
 @method_decorator(csrf_exempt, name='dispatch')
-class UpdateProfileView(View):
+class UpdateProfileView(LoginRequiredMixin, View):
     def post(self, request):
         if not request.user.is_authenticated:
             return JsonResponse({'error': 'Non authentifié.'}, status=401)

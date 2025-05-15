@@ -12,36 +12,29 @@ import Login from "./pages/Users/Login";
 import Register from "./pages/Users/Register";
 import Update from "./pages/Users/Update";
 
+import PrivateRoute from "./components/PrivateRoute";
+
 const App = () => {
   return (
     <Router>
-      {/* <Navbar
-        onCategorySelect={(cat) => {
-          // Tu peux gérer une redirection ou mettre à jour un state global ici
-          // Pour l'instant, on peut ne rien faire ou naviguer vers la home :
-          if (cat) {
-            window.location.href = `/?category=${encodeURIComponent(cat)}`;
-          } else {
-            window.location.href = "/";
-          }
-        }}
-        onSearchResults={null} // Ou à gérer globalement si tu as un système centralisé
-      /> */}
+      {/* <Navbar /> */}
 
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/rss-feeds" element={<RSSFeeds />} />
-        <Route path="/add-rss-feed" element={<AddRSSFeed />} />
-        <Route path="/favorites" element={<Favorites />} />
-        <Route path="/feeds/categories" element={<Categories />} />
-        <Route path="/feeds/:id" element={<FeedDetail />} />
-        <Route path="/stats" element={<Stats />} />
+        {/* pages publiques */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/profile" element={<Update />} />
+
+        {/* pages protégées */}
+        <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
+        <Route path="/rss-feeds" element={<PrivateRoute><RSSFeeds /></PrivateRoute>} />
+        <Route path="/add-rss-feed" element={<PrivateRoute><AddRSSFeed /></PrivateRoute>} />
+        <Route path="/favorites" element={<PrivateRoute><Favorites /></PrivateRoute>} />
+        <Route path="/feeds/categories" element={<PrivateRoute><Categories /></PrivateRoute>} />
+        <Route path="/feeds/:id" element={<PrivateRoute><FeedDetail /></PrivateRoute>} />
+        <Route path="/stats" element={<PrivateRoute><Stats /></PrivateRoute>} />
+        <Route path="/profile" element={<PrivateRoute><Update /></PrivateRoute>} />
       </Routes>
     </Router>
-
   );
 };
 

@@ -8,7 +8,7 @@ from veille import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('utilisateur/', include(users_urls)),
+    path('users/', include(users_urls)),
     path('feeds/', include(feeds_urls)),
     path('articles/', include(articles_urls)),
     path('tasks/', include('tasks.urls')),
