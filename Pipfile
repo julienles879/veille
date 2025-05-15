@@ -4,9 +4,6 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-requests = "*"
-pillow = "*"
-dotenv = "*"
 
 [dev-packages]
 

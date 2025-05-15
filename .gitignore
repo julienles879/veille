@@ -66,5 +66,14 @@ Thumbs.db
 *.orig
 .git/
 
+*.pid
+*.db
+*.sock
+volumes/
+
+
+docker/nginx/.htpasswd
+
+frontend/build
 
 note.txt
