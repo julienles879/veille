@@ -8,7 +8,9 @@ import FeedDetail from "./pages/FeedDetail/FeedDetail";
 import Categories from "./pages/Categories/Categories";
 // import Navbar from "./components/navbar/navbar";
 import Stats from "./pages/Stats/Stats";
-
+import Login from "./pages/Users/Login";
+import Register from "./pages/Users/Register";
+import Update from "./pages/Users/Update";
 
 const App = () => {
   return (
@@ -34,6 +36,9 @@ const App = () => {
         <Route path="/feeds/categories" element={<Categories />} />
         <Route path="/feeds/:id" element={<FeedDetail />} />
         <Route path="/stats" element={<Stats />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/profile" element={<Update />} />
       </Routes>
     </Router>
 

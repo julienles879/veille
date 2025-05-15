@@ -37,7 +37,12 @@ class Favorite(models.Model):
     """
     Modèle pour gérer les favoris des articles.
     """
-
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name="favorites",
+        help_text="Utilisateur qui a ajouté l'article aux favoris."
+    )
     article = models.ForeignKey(
         RSSFeedEntry, 
         on_delete=models.CASCADE,
