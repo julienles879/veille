@@ -10,7 +10,6 @@ import Categories from "./pages/Categories/Categories";
 import Stats from "./pages/Stats/Stats";
 import Login from "./pages/Users/Login";
 import Register from "./pages/Users/Register";
-import Update from "./pages/Users/Update";
 
 import PrivateRoute from "./components/PrivateRoute";
 
@@ -32,7 +31,6 @@ const App = () => {
         <Route path="/feeds/categories" element={<PrivateRoute><Categories /></PrivateRoute>} />
         <Route path="/feeds/:id" element={<PrivateRoute><FeedDetail /></PrivateRoute>} />
         <Route path="/stats" element={<PrivateRoute><Stats /></PrivateRoute>} />
-        <Route path="/profile" element={<PrivateRoute><Update /></PrivateRoute>} />
       </Routes>
     </Router>
   );

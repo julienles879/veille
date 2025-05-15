@@ -1,86 +1,73 @@
-from django.contrib.auth import authenticate, login, logout, get_user_model
-from django.views import View
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-import json
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth import authenticate, get_user_model
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.authtoken.models import Token
+from rest_framework import status
 
 User = get_user_model()
 
-@method_decorator(csrf_exempt, name='dispatch')
-class RegisterView(View):
+class RegisterView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
-        try:
-            data = json.loads(request.body)
-            username = data.get('username')
-            email = data.get('email')
-            password = data.get('password')
+        username = request.data.get('username')
+        email = request.data.get('email')
+        password = request.data.get('password')
 
-            if not username or not password:
-                return JsonResponse({'error': 'username et password requis.'}, status=400)
+        if not username or not password:
+            return Response({'error': 'username et password requis.'}, status=400)
 
-            if User.objects.filter(username=username).exists():
-                return JsonResponse({'error': 'Cet utilisateur existe déjà.'}, status=400)
+        if User.objects.filter(username=username).exists():
+            return Response({'error': 'Cet utilisateur existe déjà.'}, status=400)
 
-            user = User.objects.create_user(
-                username=username,
-                email=email,
-                password=password
-            )
-            user.is_active = False  # Important : le compte doit être validé par l'admin
-            user.save()
+        user = User.objects.create_user(username=username, email=email, password=password)
+        user.is_active = True    # ✅ facultatif : active directement si pas de validation admin
+        token, _ = Token.objects.get_or_create(user=user)
 
-            return JsonResponse({'success': 'Compte créé. En attente de validation par un admin.'})
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
+        return Response({'success': 'Compte créé.', 'token': token.key}, status=201)
 
-@method_decorator(csrf_exempt, name='dispatch')
-class LoginView(View):
+class LoginView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
-        try:
-            data = json.loads(request.body)
-            username = data.get('username')
-            password = data.get('password')
+        username = request.data.get('username')
+        password = request.data.get('password')
+        user = authenticate(request, username=username, password=password)
 
-            user = authenticate(request, username=username, password=password)
+        if user is None:
+            return Response({'error': 'Identifiants invalides.'}, status=401)
 
-            if user is None:
-                return JsonResponse({'error': 'Identifiants invalides.'}, status=401)
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response({'success': 'Connexion réussie.', 'token': token.key}, status=200)
 
-            if not user.is_active:
-                return JsonResponse({'error': 'Compte non activé. Veuillez attendre la validation par un admin.'}, status=403)
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
 
-            login(request, user)
-            return JsonResponse({'success': 'Connexion réussie.', 'username': user.username})
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
-
-@method_decorator(csrf_exempt, name='dispatch')
-class LogoutView(LoginRequiredMixin, View):
     def post(self, request):
-        logout(request)
-        return JsonResponse({'success': 'Déconnexion réussie.'})
+        request.user.auth_token.delete()   # ✅ supprime le token de l’utilisateur
+        return Response({'success': 'Déconnexion réussie.'}, status=200)
 
-@method_decorator(csrf_exempt, name='dispatch')
-class UpdateProfileView(LoginRequiredMixin, View):
+class ProfileDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response({
+            'username': request.user.username,
+            'email': request.user.email,
+        })
+
+class UpdateProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
-        if not request.user.is_authenticated:
-            return JsonResponse({'error': 'Non authentifié.'}, status=401)
+        email = request.data.get('email')
+        password = request.data.get('password')
 
-        try:
-            data = json.loads(request.body)
-            email = data.get('email')
-            password = data.get('password')
+        if email:
+            request.user.email = email
+        if password:
+            request.user.set_password(password)
 
-            if email:
-                request.user.email = email
-
-            if password:
-                request.user.set_password(password)
-
-            request.user.save()
-
-            return JsonResponse({'success': 'Profil mis à jour.'})
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
+        request.user.save()
+        return Response({'success': 'Profil mis à jour.'}, status=200)

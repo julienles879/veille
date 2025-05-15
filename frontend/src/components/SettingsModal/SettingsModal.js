@@ -1,4 +1,4 @@
-//src/components/SettingsModal/SettingsModal.js
+// src/components/SettingsModal/SettingsModal.js
 
 import React, { useState } from "react";
 import styles from "./SettingsModal.module.css";
@@ -6,6 +6,7 @@ import Tabs from "./Tabs";
 import FluxManager from "./FluxManager";
 import FavorisManager from "./FavorisManager";
 import CategoriesManager from "./CategoriesManager";
+import ProfilManager from "./ProfilManager";   // ✅ NEW import
 
 const SettingsModal = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState("flux"); // ✅ Par défaut : Flux
@@ -23,6 +24,7 @@ const SettingsModal = ({ onClose }) => {
           {activeTab === "flux" && <FluxManager />}
           {activeTab === "favoris" && <FavorisManager />}
           {activeTab === "categories" && <CategoriesManager />}
+          {activeTab === "profil" && <ProfilManager />}    {/* ✅ NEW line */}
         </div>
       </div>
     </div>

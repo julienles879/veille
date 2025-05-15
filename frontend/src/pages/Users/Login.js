@@ -6,7 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 const Login = () => {
     const [form, setForm] = useState({ username: '', password: '' });
     const [message, setMessage] = useState('');
-    const navigate = useNavigate(); // pour rediriger après connexion
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -16,12 +16,14 @@ const Login = () => {
         e.preventDefault();
         try {
             const response = await axios.post('/users/login/', form);
-            setMessage(response.data.success);
 
-            // ✅ Indique que l'utilisateur est connecté
+            // ✅ Stocker le token dans localStorage
+            localStorage.setItem("token", response.data.token);
+
+            // (optionnel mais utile pour tes PrivateRoute si tu veux)
             localStorage.setItem("isAuthenticated", "true");
 
-            // ✅ Redirige vers la page d'accueil ou autre
+            setMessage(response.data.success);
             navigate('/');
         } catch (err) {
             setMessage(err.response?.data?.error || 'Erreur serveur.');
@@ -51,8 +53,6 @@ const Login = () => {
             </form>
 
             {message && <p>{message}</p>}
-
-            {/* ✅ Lien vers la page d'inscription */}
             <p>Pas encore de compte ? <Link to="/register">Inscris-toi ici</Link></p>
         </div>
     );
