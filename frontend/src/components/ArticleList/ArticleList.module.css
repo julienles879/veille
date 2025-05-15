@@ -1,0 +1,17 @@
+/* ✅ Grid principale pour l'affichage des articles */
+.articlesGrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    padding: 20px;
+  }
+  
+  /* 📱 Responsive pour les petits écrans */
+  @media (max-width: 768px) {
+    .articlesGrid {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+  

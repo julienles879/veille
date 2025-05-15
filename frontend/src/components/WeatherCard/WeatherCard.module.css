@@ -1,0 +1,44 @@
+    .weatherCard {
+        background-color: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        max-width: 300px;
+        margin: 2rem auto;
+        text-align: center;
+        font-family: sans-serif;
+    }
+    
+    .weatherCard .icon {
+        font-size: 3rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .icon {
+        font-size: 3rem;
+        margin-bottom: 0.5rem;
+        color: #dc2626; /* rouge par défaut ou dynamique si besoin */
+    }
+    
+    .weatherCard .city {
+        font-size: 1.25rem;
+        font-weight: bold;
+    }
+    
+    .weatherCard .temperature {
+        margin: 0.5rem 0;
+        font-size: 1rem;
+    }
+    
+    .weatherCard .date {
+        font-size: 0.85rem;
+        color: #555;
+    }
+    
+    .weatherCard.loading,
+    .weatherCard.error {
+        color: #666;
+        font-style: italic;
+        background-color: #f7f7f7;
+    }
+    

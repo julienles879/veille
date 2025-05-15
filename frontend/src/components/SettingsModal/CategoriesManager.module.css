@@ -1,0 +1,91 @@
+/* 📌 Conteneur général */
+.categoriesContainer {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 5px;
+    color: white; /* Texte en blanc */
+  }
+  
+  /* 📝 Formulaire d'ajout */
+  .addCategoryForm {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .inputField {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    width: 100%;
+  }
+  
+  .addButton {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .addButton:hover {
+    background: #218838;
+  }
+  
+  /* ❌ Message d'erreur */
+  .errorText {
+    color: red;
+    font-size: 14px;
+  }
+  
+  /* 📜 Liste des catégories */
+  .categoriesList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  /* 📂 Élément de la liste */
+  .categoryItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #333;
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+  }
+  
+  /* ❤️ Bouton de suppression */
+  .deleteButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    color: red; /* Icône de cœur rouge */
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .deleteButton:hover {
+    transform: scale(1.2);
+  }
+  
+  /* 🎨 Scrollbar */
+  .categoriesContainer::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .categoriesContainer::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 5px;
+  }
+  
+  .categoriesContainer::-webkit-scrollbar-thumb:hover {
+    background: #777;
+  }
+  

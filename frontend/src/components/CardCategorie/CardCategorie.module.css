@@ -1,0 +1,70 @@
+/* ✅ Carte principale */
+.card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    width: 300px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .card:hover {
+    transform: scale(1.02);
+  }
+  
+  /* 🎭 Titre de la catégorie */
+  .title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 8px;
+  }
+  
+  /* 📝 Description */
+  .description {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 12px;
+  }
+  
+  /* 📂 Section des flux RSS */
+  .feedContainer {
+    margin-top: 10px;
+  }
+  
+  .feedTitle {
+    font-size: 16px;
+    font-weight: bold;
+    color: #444;
+    margin-bottom: 5px;
+  }
+  
+  /* 📜 Liste des flux RSS */
+  .feedList {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .feedItem {
+    margin-bottom: 6px;
+  }
+  
+  .feedLink {
+    text-decoration: none;
+    color: #007BFF;
+    font-size: 14px;
+    transition: color 0.2s;
+  }
+  
+  .feedLink:hover {
+    color: #0056b3;
+  }
+  
+  /* 📱 Responsive */
+  @media (max-width: 768px) {
+    .card {
+      width: 100%;
+    }
+  }
+  
