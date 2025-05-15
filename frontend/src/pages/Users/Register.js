@@ -1,6 +1,7 @@
 // frontend/src/pages/Users/Register.js
 import React, { useState } from 'react';
 import axios from '../../api';
+import styles from './Auth.module.css';
 
 const Register = () => {
     const [form, setForm] = useState({ username: '', email: '', password: '' });
@@ -21,15 +22,38 @@ const Register = () => {
     };
 
     return (
-        <div>
-            <h2>Inscription</h2>
-            <form onSubmit={handleSubmit}>
-                <input name="username" placeholder="Username" value={form.username} onChange={handleChange} required />
-                <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} />
-                <input name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} required />
-                <button type="submit">S'inscrire</button>
+        <div className={styles.registerContainer}>
+            <h2 className={styles.title}>Inscription</h2>
+            <form onSubmit={handleSubmit} className={styles.form}>
+                <input
+                    className={styles.input}
+                    name="username"
+                    placeholder="Nom d'utilisateur"
+                    value={form.username}
+                    onChange={handleChange}
+                    required
+                />
+                <input
+                    className={styles.input}
+                    name="email"
+                    type="email"
+                    placeholder="Email"
+                    value={form.email}
+                    onChange={handleChange}
+                />
+                <input
+                    className={styles.input}
+                    name="password"
+                    type="password"
+                    placeholder="Mot de passe"
+                    value={form.password}
+                    onChange={handleChange}
+                    required
+                />
+                <button type="submit" className={styles.button}>S'inscrire</button>
             </form>
-            {message && <p>{message}</p>}
+
+            {message && <p className={styles.message}>{message}</p>}
         </div>
     );
 };

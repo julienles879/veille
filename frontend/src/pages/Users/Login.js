@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import axios from '../../api';
 import { Link, useNavigate } from 'react-router-dom';
+import styles from './Auth.module.css';
 
 const Login = () => {
     const [form, setForm] = useState({ username: '', password: '' });
@@ -16,13 +17,8 @@ const Login = () => {
         e.preventDefault();
         try {
             const response = await axios.post('/users/login/', form);
-
-            // ✅ Stocker le token dans localStorage
             localStorage.setItem("token", response.data.token);
-
-            // (optionnel mais utile pour tes PrivateRoute si tu veux)
             localStorage.setItem("isAuthenticated", "true");
-
             setMessage(response.data.success);
             navigate('/');
         } catch (err) {
@@ -31,10 +27,11 @@ const Login = () => {
     };
 
     return (
-        <div>
-            <h2>Connexion</h2>
-            <form onSubmit={handleSubmit}>
+        <div className={styles.loginContainer}>
+            <h2 className={styles.title}>Connexion</h2>
+            <form onSubmit={handleSubmit} className={styles.form}>
                 <input
+                    className={styles.input}
                     name="username"
                     placeholder="Nom d'utilisateur"
                     value={form.username}
@@ -42,6 +39,7 @@ const Login = () => {
                     required
                 />
                 <input
+                    className={styles.input}
                     name="password"
                     type="password"
                     placeholder="Mot de passe"
@@ -49,11 +47,13 @@ const Login = () => {
                     onChange={handleChange}
                     required
                 />
-                <button type="submit">Se connecter</button>
+                <button type="submit" className={styles.button}>Se connecter</button>
             </form>
 
-            {message && <p>{message}</p>}
-            <p>Pas encore de compte ? <Link to="/register">Inscris-toi ici</Link></p>
+            {message && <p className={styles.message}>{message}</p>}
+            <p className={styles.link}>
+                Pas encore de compte ? <Link to="/register">Inscris-toi ici</Link>
+            </p>
         </div>
     );
 };
