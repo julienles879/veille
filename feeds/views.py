@@ -290,3 +290,34 @@ class CategoryDeleteView(generics.DestroyAPIView):
             return Response(
                 {"error": "Catégorie introuvable."}, status=HTTP_404_NOT_FOUND
             )
+
+
+from django.db.models import Count
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from .models import RSSFeed
+from .serializers import RSSFeedSerializer
+
+
+class SuggestedFeedsView(APIView):
+    """
+    Vue pour suggérer des flux populaires que l’utilisateur n’a pas encore ajoutés.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Obtenir les IDs des flux déjà ajoutés par l’utilisateur
+        user_feeds_ids = request.user.rss_feeds.values_list("id", flat=True)
+
+        # Chercher les flux ajoutés par le plus d’utilisateurs, sauf ceux déjà suivis par l’utilisateur courant
+        suggestions = (
+            RSSFeed.objects.exclude(id__in=user_feeds_ids)
+            .annotate(user_count=Count("user"))
+            .order_by("-user_count")[:10]
+        )
+
+        serializer = RSSFeedSerializer(suggestions, many=True)
+        return Response(serializer.data)

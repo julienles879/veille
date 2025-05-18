@@ -40,4 +40,5 @@ urlpatterns = [
         CategorySearchView.as_view(),
         name="category-search",
     ),
+    path("suggestions/", SuggestedFeedsView.as_view(), name="suggested-feeds"),
 ]
