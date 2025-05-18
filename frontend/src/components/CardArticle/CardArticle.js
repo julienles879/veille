@@ -1,66 +1,18 @@
-import React, { useEffect, useState } from "react";
+// src/components/CadArticle/CardArticle.js
+
+import React from "react";
 import styles from "./CardArticle.module.css";
 
-const CardArticle = ({ article, onArticleSelect }) => {
+const CardArticle = ({ article, isFavorite = false, onToggleFavorite, onArticleSelect }) => {
   const { id, title, published_at, image, category, feed_title, tags } = article;
 
-  const [isFavorite, setIsFavorite] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    fetch(`http://127.0.0.1:8000/articles/favorites/`, {
-      headers: {
-        Authorization: `Token ${token}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Unauthorized");
-        }
-        return response.json();
-      })
-      .then((favorites) => {
-        const isAlreadyFavorite = favorites.some((fav) => fav.id === id);
-        setIsFavorite(isAlreadyFavorite);
-      })
-      .catch((error) =>
-        console.error("Erreur de récupération des favoris :", error)
-      );
-  }, [id]);
-
-  const toggleFavorite = async (event) => {
-    event.stopPropagation();
-
-    const token = localStorage.getItem("token");
-
-    const apiUrl = isFavorite
-      ? `http://127.0.0.1:8000/articles/favorites/remove/${id}/`
-      : `http://127.0.0.1:8000/articles/favorites/add/`;
-
-    const method = isFavorite ? "DELETE" : "POST";
-    const body = isFavorite ? null : JSON.stringify({ article_id: id });
-
-    try {
-      const response = await fetch(apiUrl, {
-        method: method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-        body: body,
-      });
-
-      if (response.ok) {
-        setIsFavorite(!isFavorite);
-      }
-    } catch (error) {
-      console.error("Erreur réseau :", error);
-    }
+  const handleFavoriteClick = (e) => {
+    e.stopPropagation();
+    onToggleFavorite?.(id, isFavorite);
   };
 
   return (
-    <div className={styles.card} onClick={() => onArticleSelect(article)}>
+    <div className={styles.card} onClick={() => onArticleSelect?.(article)}>
       <div className={styles.imageContainer}>
         {image ? (
           <img
@@ -70,8 +22,7 @@ const CardArticle = ({ article, onArticleSelect }) => {
             referrerPolicy="no-referrer"
             onError={(e) => {
               e.target.onerror = null;
-              e.target.src =
-                "https://placehold.co/350x200?text=Image+indisponible";
+              e.target.src = "https://placehold.co/350x200?text=Image+indisponible";
             }}
           />
         ) : (
@@ -92,7 +43,7 @@ const CardArticle = ({ article, onArticleSelect }) => {
         </p>
 
         <div className={styles.tagsContainer}>
-          {tags && tags.length > 0 ? (
+          {tags?.length > 0 ? (
             tags.map((tag, index) => (
               <span key={index} className={styles.tag}>
                 #{tag}
@@ -104,7 +55,7 @@ const CardArticle = ({ article, onArticleSelect }) => {
         </div>
       </div>
 
-      <button className={styles.favoriteButton} onClick={toggleFavorite}>
+      <button className={styles.favoriteButton} onClick={handleFavoriteClick}>
         {isFavorite ? "❤️" : "🤍"}
       </button>
     </div>
