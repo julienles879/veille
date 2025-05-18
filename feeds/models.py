@@ -41,3 +41,29 @@ class RSSFeed(models.Model):
 
     def __str__(self):
         return self.title
+    
+    
+class UserRSSFeed(models.Model):
+    """
+    Association entre un utilisateur et un flux RSS (abonnement personnel).
+    """
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="user_rss_feeds",
+        help_text="Utilisateur abonné au flux RSS."
+    )
+    feed = models.ForeignKey(
+        'RSSFeed',
+        on_delete=models.CASCADE,
+        related_name="subscribers",
+        help_text="Flux RSS auquel l'utilisateur est abonné."
+    )
+    added_at = models.DateTimeField(auto_now_add=True, help_text="Date d'ajout du flux par l'utilisateur.")
+
+    class Meta:
+        unique_together = ('user', 'feed')  # Un utilisateur ne peut ajouter le même flux qu'une fois
+
+    def __str__(self):
+        return f"{self.user.username} → {self.feed.title}"
+    
