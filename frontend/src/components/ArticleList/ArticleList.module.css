@@ -1,17 +1,20 @@
-/* ✅ Grid principale pour l'affichage des articles */
+/* ✅ Grille principale des articles */
 .articlesGrid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-    padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  padding: 32px 24px;
+  background: #1e2130;
+  border-radius: 16px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3);
+  margin: 40px auto;
+  max-width: 1200px;
+}
+
+/* 📱 Responsive mobile */
+@media (max-width: 768px) {
+  .articlesGrid {
+    grid-template-columns: 1fr;
+    padding: 24px 16px;
   }
-  
-  /* 📱 Responsive pour les petits écrans */
-  @media (max-width: 768px) {
-    .articlesGrid {
-      flex-direction: column;
-      align-items: center;
-    }
-  }
-  
+}

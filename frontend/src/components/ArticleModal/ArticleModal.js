@@ -1,11 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./ArticleModal.module.css";
 
 const ArticleModal = ({ article, onClose }) => {
   const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:8000/articles/favorites/`)
+    const token = localStorage.getItem("token");
+    fetch(`http://127.0.0.1:8000/articles/favorites/`, {
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+    })
       .then((response) => response.json())
       .then((favorites) => {
         const isAlreadyFavorite = favorites.some((fav) => fav.id === article.id);
@@ -15,6 +20,7 @@ const ArticleModal = ({ article, onClose }) => {
   }, [article.id]);
 
   const toggleFavorite = async () => {
+    const token = localStorage.getItem("token");
     const apiUrl = isFavorite
       ? `http://127.0.0.1:8000/articles/favorites/remove/${article.id}/`
       : `http://127.0.0.1:8000/articles/favorites/add/`;
@@ -24,14 +30,14 @@ const ArticleModal = ({ article, onClose }) => {
 
     try {
       const response = await fetch(apiUrl, {
-        method: method,
-        headers: { "Content-Type": "application/json" },
-        body: body,
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+        body,
       });
-
-      if (response.ok) {
-        setIsFavorite(!isFavorite);
-      }
+      if (response.ok) setIsFavorite(!isFavorite);
     } catch (error) {
       console.error("Erreur réseau :", error);
     }
@@ -42,22 +48,20 @@ const ArticleModal = ({ article, onClose }) => {
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <button className={styles.closeButton} onClick={onClose}>✖</button>
 
-        <h2 className={styles.title}>{article.title}</h2>
-        <p className={styles.date}>📅 {new Date(article.published_at).toLocaleDateString("fr-FR")}</p>
-        <p className={styles.category}>📂 Catégorie : {article.category || "Non spécifiée"}</p>
-        <p className={styles.feed}>📰 Source : {article.feed_title || "Inconnue"}</p>
+        <div className={styles.header}>
+          <h2 className={styles.title}>{article.title}</h2>
+          <p className={styles.date}>📅 {new Date(article.published_at).toLocaleDateString("fr-FR")}</p>
+        </div>
 
-        {/* 🏷️ Affichage des tags */}
+        <div className={styles.meta}>
+          <p className={styles.category}>📂 {article.category || "Non spécifiée"}</p>
+          <p className={styles.feed}>📰 {article.feed_title || "Inconnue"}</p>
+        </div>
+
         <div className={styles.tagsContainer}>
-          {article.tags && article.tags.length > 0 ? (
-            article.tags.map((tag, index) => (
-              <span key={index} className={styles.tag}>
-                #{tag}
-              </span>
-            ))
-          ) : (
-            <span className={styles.noTags}>Aucun tag</span>
-          )}
+          {article.tags?.length ? (
+            article.tags.map((tag, i) => <span key={i} className={styles.tag}>#{tag}</span>)
+          ) : <span className={styles.noTags}>Aucun tag</span>}
         </div>
 
         <div className={styles.imageContainer}>
@@ -67,25 +71,21 @@ const ArticleModal = ({ article, onClose }) => {
               alt={article.title}
               className={styles.image}
               referrerPolicy="no-referrer"
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = "https://placehold.co/600x300?text=Image+indisponible";
-              }}
+              onError={(e) => { e.target.src = "https://placehold.co/600x300?text=Image+indisponible"; }}
             />
-          ) : (
-            <div className={styles.placeholder}>Pas d'image</div>
-          )}
+          ) : <div className={styles.placeholder}>Pas d'image</div>}
         </div>
 
-        <p className={styles.description}>{article.content}</p>
+        <div className={styles.description}>{article.content}</div>
 
-        <button className={styles.favoriteButton} onClick={toggleFavorite}>
-          {isFavorite ? "❤️ Retirer des favoris" : "🤍 Ajouter aux favoris"}
-        </button>
-
-        <a href={article.link} target="_blank" rel="noopener noreferrer" className={styles.articleLink}>
-          Lire l'article original ➔
-        </a>
+        <div className={styles.actions}>
+          <button className={styles.favoriteButton} onClick={toggleFavorite}>
+            {isFavorite ? "❤️ Retirer des favoris" : "🤍 Ajouter aux favoris"}
+          </button>
+          <a href={article.link} target="_blank" rel="noopener noreferrer" className={styles.articleLink}>
+            🔗 Lire l'article original
+          </a>
+        </div>
       </div>
     </div>
   );
