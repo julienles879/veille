@@ -1,135 +1,131 @@
-/* 🌟 NAVBAR SIMPLIFIÉE */
 .navbar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background-color: #222;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background-color: #1e1e2f;
   color: white;
-  padding: 10px 20px;
-  font-size: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid #333;
   position: sticky;
   top: 0;
   z-index: 1000;
 }
 
-/* 🔄 Bouton Icône */
-.iconButton {
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  font-size: 20px;
-  padding: 8px;
-  transition: 0.2s;
-}
-
-.iconButton:hover {
-  color: #ddd;
-}
-
-/* 🏷️ Liste des catégories */
+/* 📂 Catégories */
 .navList {
   display: flex;
   align-items: center;
-  gap: 10px;
-  list-style: none;
-  padding: 0;
+  gap: 12px;
   margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .navItem button {
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  padding: 8px 14px;
-  border-radius: 18px;
+  background: transparent;
+  border: 1px solid #444;
+  padding: 6px 14px;
+  border-radius: 20px;
   color: white;
   cursor: pointer;
-  transition: background 0.3s ease;
   font-size: 14px;
+  transition: 0.3s;
 }
 
 .navItem button:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background-color: #333;
 }
 
-/* 🔽 Conteneur Dropdown */
+/* 🔽 Dropdown */
 .dropdownContainer {
   position: relative;
-  display: inline-block;
 }
 
-/* 🔽 Menu déroulant (Catégories supplémentaires) */
 .dropdownMenu {
+  display: none;
   position: absolute;
-  top: 110%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #333;
+  top: 120%;
+  background: #2a2a3d;
   border-radius: 6px;
-  padding: 5px 0;
-  min-width: 160px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  z-index: 1000;
-  display: none; /* Caché par défaut */
+  min-width: 150px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
 }
 
-/* 🔥 Affichage au survol */
 .dropdownContainer:hover .dropdownMenu {
   display: block;
 }
 
-/* 🔽 Élément du menu */
 .dropdownItem {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 10px 15px;
-  color: white;
+  padding: 8px 12px;
   background: none;
   border: none;
+  color: white;
+  width: 100%;
+  text-align: left;
   cursor: pointer;
-  transition: background 0.2s;
   font-size: 14px;
-  white-space: nowrap;
 }
 
 .dropdownItem:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background-color: #444;
 }
 
-/* 🔍 Barre de recherche */
+/* 🔍 Barre de recherche centrée */
 .searchBar {
+  flex-grow: 1;
+  max-width: 500px;
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 5px 10px;
+  background-color: #2d2d3d;
+  border-radius: 30px;
+  padding: 6px 12px;
+  margin: 0 30px;
 }
 
 .searchInput {
-  border: none;
-  outline: none;
+  flex-grow: 1;
   background: none;
+  border: none;
   color: white;
-  padding: 5px;
-  font-size: 14px;
-  width: 150px;
+  font-size: 15px;
+  padding: 4px 8px;
+  outline: none;
 }
 
 .searchButton {
   background: none;
   border: none;
   color: white;
-  font-size: 18px;
+  font-size: 20px;
   cursor: pointer;
 }
 
+/* 👤 Utilisateur + Actions */
 .userInfo {
   color: white;
-  background: #333;
-  padding: 5px 10px;
-  border-radius: 5px;
-  margin: 0 10px;
-  font-size: 14px;
+  margin-right: 14px;
+  font-weight: 500;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.iconButton {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 6px;
+  transition: 0.2s;
+}
+
+.iconButton:hover,
+.iconButton:focus,
+a.iconButton:hover,
+a.iconButton:focus {
+  color: #ddd !important;
 }

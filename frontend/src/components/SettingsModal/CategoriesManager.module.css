@@ -1,91 +1,134 @@
 /* 📌 Conteneur général */
 .categoriesContainer {
-    max-height: 400px;
-    overflow-y: auto;
-    padding-right: 5px;
-    color: white; /* Texte en blanc */
-  }
-  
-  /* 📝 Formulaire d'ajout */
-  .addCategoryForm {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 15px;
-  }
-  
-  .inputField {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 14px;
-    width: 100%;
-  }
-  
-  .addButton {
-    background: #28a745;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .addButton:hover {
-    background: #218838;
-  }
-  
-  /* ❌ Message d'erreur */
-  .errorText {
-    color: red;
-    font-size: 14px;
-  }
-  
-  /* 📜 Liste des catégories */
-  .categoriesList {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    max-height: 200px;
-    overflow-y: auto;
-  }
-  
-  /* 📂 Élément de la liste */
-  .categoryItem {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #333;
-    padding: 10px;
-    margin-bottom: 5px;
-    border-radius: 5px;
-  }
-  
-  /* ❤️ Bouton de suppression */
-  .deleteButton {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 20px;
-    color: red; /* Icône de cœur rouge */
-    transition: transform 0.2s ease-in-out;
-  }
-  
-  .deleteButton:hover {
-    transform: scale(1.2);
-  }
-  
-  /* 🎨 Scrollbar */
-  .categoriesContainer::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  .categoriesContainer::-webkit-scrollbar-thumb {
-    background: #555;
-    border-radius: 5px;
-  }
-  
-  .categoriesContainer::-webkit-scrollbar-thumb:hover {
-    background: #777;
-  }
-  
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 5px;
+  background: #2a2d3f; /* 🌗 Plus clair */
+  color: white;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); /* ✅ Ombre douce */
+}
+
+/* 🧾 Titre centré */
+.categoriesContainer h3 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+
+/* 📝 Formulaire d'ajout */
+.addCategoryForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centrage horizontal */
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.inputField {
+  width: 80%; /* 📏 Réduction largeur */
+  max-width: 360px;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #3a3e51;
+  color: white;
+}
+
+
+.inputField::placeholder {
+  color: #ccc;
+}
+
+.addButton {
+  background: #61dafb;
+  color: #1e1e2f;
+  width: 160px;
+  text-align: center;
+  margin-top: 5px;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.addButton:hover {
+  background: #4ec9e1;
+}
+
+/* ❌ Message d'erreur */
+.errorText {
+  color: #ff6b6b;
+  font-size: 14px;
+}
+
+/* 📜 Liste des catégories */
+.categoriesList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); /* 🧱 Deux colonnes adaptatives */
+  gap: 12px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* 📂 Élément de la liste */
+.categoryItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #3a3e51; /* ✅ Ton plus clair */
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* ✅ Ombre douce */
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.categoryItem:hover {
+  background: #4b4f63;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+}
+
+/* 🗑️ Bouton de suppression */
+.deleteButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  color: #ff4d4d;
+  transition: transform 0.2s ease-in-out, color 0.3s;
+}
+
+.deleteButton:hover {
+  transform: scale(1.2);
+  color: #ff1a1a;
+}
+
+/* 🎨 Scrollbar */
+.categoriesContainer::-webkit-scrollbar {
+  width: 8px;
+}
+
+.categoriesContainer::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 5px;
+}
+
+.categoriesContainer::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}

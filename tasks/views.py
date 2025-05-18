@@ -1,25 +1,32 @@
-from rest_framework.views import APIView
+import requests
+from django.conf import settings
+from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_500_INTERNAL_SERVER_ERROR
+from rest_framework.views import APIView
+
 from articles.tasks import fetch_articles_for_feeds
 
-import requests
-from rest_framework.decorators import api_view
-from django.conf import settings
-from django.contrib.auth.mixins import LoginRequiredMixin
 
-
-
-class ManualRSSUpdateView(LoginRequiredMixin, APIView):
+class ManualRSSUpdateView(APIView):
     """
     Vue pour déclencher manuellement la récupération des flux RSS.
     """
+
+    permission_classes = [IsAuthenticated]
+
     def post(self, request, *args, **kwargs):
         try:
             fetch_articles_for_feeds()
-            return Response({"message": "Mise à jour des flux RSS déclenchée avec succès."}, status=HTTP_200_OK)
+            return Response(
+                {"message": "Mise à jour des flux RSS déclenchée avec succès."},
+                status=HTTP_200_OK,
+            )
         except Exception as e:
-            return Response({"error": str(e)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {"error": str(e)}, status=HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 @api_view(["GET"])
@@ -36,12 +43,12 @@ def get_weather(request):
         if lat and lon:
             location_res = requests.get(
                 "https://api.meteo-concept.com/api/location/cities",
-                params={"token": token, "lat": lat, "lon": lon}
+                params={"token": token, "lat": lat, "lon": lon},
             )
         else:
             location_res = requests.get(
                 "https://api.meteo-concept.com/api/location/cities",
-                params={"token": token, "search": city or "Paris", "limit": 1}
+                params={"token": token, "search": city or "Paris", "limit": 1},
             )
 
         location_res.raise_for_status()
@@ -49,7 +56,10 @@ def get_weather(request):
 
         cities = location_data.get("cities")
         if not cities:
-            return Response({"error": "Aucune ville trouvée."}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {"error": "Aucune ville trouvée."},
+                status=HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
         city_data = cities[0]
         city_id = city_data["insee"]
@@ -57,22 +67,27 @@ def get_weather(request):
 
         weather_res = requests.get(
             "https://api.meteo-concept.com/api/forecast/daily/0",
-            params={"token": token, "insee": city_id}
+            params={"token": token, "insee": city_id},
         )
         weather_res.raise_for_status()
         weather_data = weather_res.json()
         forecast = weather_data["forecast"]
 
-        return Response({
-            "city": city_name,
-            "tmin": forecast["tmin"],
-            "tmax": forecast["tmax"],
-            "weather": forecast["weather"],
-            "datetime": forecast["datetime"]
-        }, status=HTTP_200_OK)
+        return Response(
+            {
+                "city": city_name,
+                "tmin": forecast["tmin"],
+                "tmax": forecast["tmax"],
+                "weather": forecast["weather"],
+                "datetime": forecast["datetime"],
+            },
+            status=HTTP_200_OK,
+        )
 
     except Exception as e:
-        return Response({"error": str(e)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": str(e)}, status=HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 @api_view(["GET"])
@@ -85,12 +100,14 @@ def get_city_from_coords(request):
     token = settings.METEO_CONCEPT_TOKEN
 
     if not lat or not lon:
-        return Response({"error": "Latitude et longitude requises."}, status=400)
+        return Response(
+            {"error": "Latitude et longitude requises."}, status=400
+        )
 
     try:
         location_res = requests.get(
             "https://api.meteo-concept.com/api/location/cities",
-            params={"token": token, "lat": lat, "lon": lon}
+            params={"token": token, "lat": lat, "lon": lon},
         )
         location_res.raise_for_status()
         data = location_res.json()
@@ -102,4 +119,6 @@ def get_city_from_coords(request):
         return Response({"city": city_name}, status=HTTP_200_OK)
 
     except Exception as e:
-        return Response({"error": str(e)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": str(e)}, status=HTTP_500_INTERNAL_SERVER_ERROR
+        )
