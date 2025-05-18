@@ -1,5 +1,5 @@
-// frontend/src/pages/Users/Register.js
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import axios from '../../api';
 import styles from './Auth.module.css';
 
@@ -54,6 +54,10 @@ const Register = () => {
             </form>
 
             {message && <p className={styles.message}>{message}</p>}
+
+            <p className={styles.link}>
+                Déjà un compte ? <Link to="/login">Connecte-toi ici</Link>
+            </p>
         </div>
     );
 };
